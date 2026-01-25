@@ -8,7 +8,10 @@ from akeflp.solver import solve
 
 def render(item: Item, rate: float, depth: int = 0) -> None:
     totcost = item.cost * math.ceil(rate / item.base_rate)
-    rateinfo = f"{item.name} @ {rate}/min $\\xleftarrow{{\\text{{costs}}}}$ {totcost}"
+    rateinfo = (
+        f"{rate/item.output_rate:.3f}x {item.name} @ {rate}/min "
+        f"$\\xleftarrow{{\\text{{costs}}}}$ {totcost}"
+    )
     if not item.inputs:
         st.write(rateinfo)
         return
