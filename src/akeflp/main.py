@@ -3,14 +3,15 @@ import math
 import streamlit as st
 
 from akef.items import Item, ResourceCost, items, power_sources, raw_resources
-from akeflp.solver import solve
+from akeflp.solver import POWER, solve
 
 
 def render(item: Item, rate: float, depth: int = 0) -> None:
     totcost = item.cost * math.ceil(rate / item.base_rate)
     rateinfo = (
         f"{rate/item.output_rate:.3f}x {item.name} @ {rate}/min "
-        f"$\\xleftarrow{{\\text{{costs}}}}$ {totcost}"
+        f"$\\xleftarrow{{\\text{{costs}}}}$ {totcost} "
+        + (f"[{item.value}]" if item.value else "")
     )
     if not item.inputs:
         st.write(rateinfo)
@@ -98,7 +99,15 @@ def main() -> None:
             st.error("No solution found?? :/ (it should say something...)")
 
     st.write("# Resources")
-    for item in items.values():
+    items_display = list(items.values())
+    match st.selectbox("Sort by", ["Default", "Power (dec)", "Value (dec)"], index=1):
+        case "Default":
+            pass
+        case "Power (dec)":
+            items_display.sort(key=lambda x: x.cost.val[POWER], reverse=True)
+        case "Value (dec)":
+            items_display.sort(key=lambda x: x.value, reverse=True)
+    for item in items_display:
         if item.name in raw_resources:
             continue
         render(item, item.base_rate * item.output)
