@@ -37,7 +37,7 @@ def main() -> None:
         "to sell everything (unlikely to be true)."
     )
     st.write(
-        "If you scroll to the bottom, you can see how power and ore upkeep of"
+        "If you scroll to the bottom, you can see how power and ore upkeep of "
         "each facility is calculated."
     )
     st.write("# Optimize")
