@@ -18,6 +18,7 @@ class Item:
         action: str,
         output: int = 1,
         value: int = 1,
+        taints: Sequence[str] = [],
     ) -> None:
         self.name: Final = name
         self.base_rate: Final = 60 / seconds_to_craft
@@ -38,3 +39,8 @@ class Item:
         self.value: Final = value
         self.output_rate: Final = self.base_rate * self.output
         """how much one facility can output per minute (base_rate * output)"""
+
+        all_taints = set(taints)
+        for _, item in inputs:
+            all_taints |= item.taints
+        self.taints: Final = all_taints

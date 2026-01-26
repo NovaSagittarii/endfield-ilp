@@ -47,6 +47,7 @@ with open(Path(__file__).resolve().parent / "items.yaml", "r") as file:
             output=quantity,
             inputs=[(amt, items[p]) for p, amt in prereqs],
             value=value,
+            taints=u.get("taints", []),
         )
 
     for name in _items:

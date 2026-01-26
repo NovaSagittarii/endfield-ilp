@@ -16,6 +16,9 @@ power:
   hc_valley_battery:
     power: 1100
     seconds: 40
+  hc_wuling_battery:
+    power: 1600
+    seconds: 40
 actions:
   refine:
     power: 5
@@ -37,14 +40,23 @@ actions:
     power: 20
   grind:
     power: 50
+  crucible:
+    power: 50
+  skyforge:
+    power: 50
   plantloop:
     power: 50
+  pump:
+    power: 10
 items:
   # itemname:
   #   method:
   #    resource_name: resource_amount
   #    seconds: (defaults to 2)
   #    quantity: (defaults to 1)
+  water:
+    pump:
+      seconds: 1
   buckflower:
     plantloop: {}
   sandleaf:
@@ -74,6 +86,12 @@ items:
   steel:
     refine:
       dense_ferrium_powder: 1
+  xiranite:
+    skyforge:
+      stabilized_carbon: 2
+      water: 1
+    taints:
+      - wuling
   carbon_powder:
     shred:
       carbon: 1
@@ -161,6 +179,11 @@ items:
       packed_origocrust: 10
       cryston_fiber: 10
       seconds: 10
+  xiranite_component:
+    gear:
+      packed_origocrust: 10
+      xiranite: 10
+      seconds: 10
   lc_valley_battery:
     package:
       amethyst_part: 5
@@ -179,6 +202,11 @@ items:
       dense_originium_powder: 15
       seconds: 10
     value: 70
+  hc_wuling_battery:
+    package:
+      xiranite: 5
+      dense_originium_powder: 15
+      seconds: 10
   buckflower_powder:
     shred:
       buckflower: 1
