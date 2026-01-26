@@ -64,7 +64,6 @@ items:
   carbon:
     refine:
       sandleaf: 1
-      seconds: 1
   origocrust:
     refine:
       originium_ore: 1
