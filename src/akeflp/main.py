@@ -55,15 +55,19 @@ def main() -> None:
     )
     max_rate = round(depot_size // (60 * 24 * checkin_interval_days))
     st.write(f"Max output rate (to fill depot in 24 hours): :blue[**{max_rate}**]/min")
+    c1, c2 = st.columns((1.1, 2))
+    ci1, ci2 = c1.columns((1, 1))
+    allow_wuling = ci2.selectbox("Planet", ["Valley IV", "Wuling"]) == "Wuling"
     constraints = ResourceCost.from_dict(
         {
-            "originium_ore": st.number_input("Originium ore/min", step=1, min_value=0),
-            "amethyst_ore": st.number_input("Amethyst ore/min", step=1, min_value=0),
-            "ferrium_ore": st.number_input("Ferrium ore/min", step=1, min_value=0),
-            "power": st.number_input("PAC Baseline power", step=1, min_value=200)
+            "originium_ore": ci1.number_input("Originium ore/min", step=1, min_value=0),
+            "amethyst_ore": ci1.number_input("Amethyst ore/min", step=1, min_value=0),
+            "ferrium_ore": ci1.number_input("Ferrium ore/min", step=1, min_value=0),
+            "power": ci2.number_input("PAC Power", step=1, min_value=200)
             - (
-                baseline := st.number_input(
-                    "Baseline power usage (Tower, relay, etc.)",
+                baseline := ci2.number_input(
+                    "Base load",
+                    help="Total power usage from towers, relay, drills, etc.",
                     step=1,
                     min_value=0,
                     value=200,
@@ -71,51 +75,48 @@ def main() -> None:
             ),
         }
     )
-    allow_wuling = st.selectbox("Planet", ["Valley IV", "Wuling"]) == "Wuling"
-    with st.expander("Objective function"):
+    with c1.popover("Objective function"):
         vals = {
             k: st.number_input(f"![]({v.icon}) {k}", step=1, value=v.value)
             for k, v in sorted(items.items(), key=lambda x: x[1].name)
             if k not in raw_resources
         }
-    if st.button("Calculate"):
-        # st.write(constraints.__repr__(), constraints.val)
-        # st.write(vals)
-        try:
-            res = solve(
-                constraints=constraints,
-                tasks=vals,
-                max_rate=max_rate,
-                disallowed_taints=[] if allow_wuling else ["wuling"],
-            )
-            st.write(f"### Value rate: :green[**{res.value_rate}**]/min")
-            with st.expander(
-                f"### Power :yellow[**{res.power_total + baseline}**]W "
-                + f" for load of :yellow[**{res.power_required + baseline}**]W "
-                + f"({res.power_required}req + {baseline}base)",
-            ):
-                for k, vp in res.power.items():
-                    st.write(
-                        f"**{k}**: {vp.x} at a time",
-                        f"(:red[{vp.x * power_sources[k].consumption_rate}]/min),",
-                        (
-                            f"generating :yellow[**{vp.power}**]W in total. "
-                            + f"Opportunity cost of :red[**{vp.opportunity_cost}**] "
-                            + "val/min."
-                            if vp.x
-                            else ""
-                        ),
-                    )
-            with st.expander("### Produce these items"):
-                for k, vt in res.produce.items():
-                    item = items[k]
-                    st.write(
-                        f"**{k}** @ {vt.x * item.output_rate}/min",
-                        f"generating :green[**{vt.rate}**] value/min",
-                    )
-                    render(item, vt.x * item.output_rate)
-        except TypeError:
-            st.error("No solution found?? :/ (it should say something...)")
+    try:
+        res = solve(
+            constraints=constraints,
+            tasks=vals,
+            max_rate=max_rate,
+            disallowed_taints=[] if allow_wuling else ["wuling"],
+        )
+        c2.write(f"### Value rate: :green[**{res.value_rate}**]/min")
+        with c2.expander(
+            f"### Power :yellow[**{res.power_total + baseline}**]W "
+            + f" for load of :yellow[**{res.power_required + baseline}**]W "
+            + f"({res.power_required}req + {baseline}base)",
+            expanded=True,
+        ):
+            for k, vp in res.power.items():
+                st.write(
+                    f"**{k}**: {vp.x} at a time",
+                    f"(:red[{vp.x * power_sources[k].consumption_rate}]/min),",
+                    (
+                        f"generating :yellow[**{vp.power}**]W in total. "
+                        + f"Opportunity cost of :red[**{vp.opportunity_cost}**] "
+                        + "val/min."
+                        if vp.x
+                        else ""
+                    ),
+                )
+        with st.expander("### Produce these items"):
+            for k, vt in res.produce.items():
+                item = items[k]
+                st.write(
+                    f"**{k}** @ {vt.x * item.output_rate}/min",
+                    f"generating :green[**{vt.rate}**] value/min",
+                )
+                render(item, vt.x * item.output_rate)
+    except TypeError:
+        c2.error("No solution found?? :/ (it should say something...)")
 
     st.write("# Resources")
     items_display = list(items.values())
