@@ -6,6 +6,12 @@ import yaml
 from akef.item import Item, ResourceCost
 from akef.power_source import PowerSource
 
+
+def to_wiki(snake_case: str) -> str:
+    s = "_".join(w.capitalize() for w in snake_case.split("_"))
+    return f"https://endfield.wiki.gg/images/thumb/{s}.png/72px-{s}.png"
+
+
 items = {}
 with open(Path(__file__).resolve().parent / "items.yaml", "r") as file:
     _data: Final[dict] = yaml.safe_load(file.read())
@@ -48,6 +54,7 @@ with open(Path(__file__).resolve().parent / "items.yaml", "r") as file:
             inputs=[(amt, items[p]) for p, amt in prereqs],
             value=value,
             taints=u.get("taints", []),
+            icon=u.get("icon", to_wiki(k)),
         )
 
     for name in _items:

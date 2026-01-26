@@ -19,6 +19,7 @@ class Item:
         output: int = 1,
         value: int = 1,
         taints: Sequence[str] = [],
+        icon: str | None = None,
     ) -> None:
         self.name: Final = name
         self.base_rate: Final = 60 / seconds_to_craft
@@ -44,3 +45,5 @@ class Item:
         for _, item in inputs:
             all_taints |= item.taints
         self.taints: Final = all_taints
+
+        self.icon: Final = icon

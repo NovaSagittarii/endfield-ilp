@@ -9,7 +9,9 @@ from akeflp.solver import POWER, solve
 def render(item: Item, rate: float, depth: int = 0) -> None:
     totcost = item.cost * math.ceil(rate / item.base_rate)
     rateinfo = (
-        f"{rate/item.output_rate:.3f}x {item.name} @ {rate}/min "
+        f"{rate/item.output_rate:.3f}x "
+        f'{(f"![icon]({item.icon})" if item.icon else "")}'
+        f"{item.name} @ {rate}/min "
         f"$\\xleftarrow{{\\text{{costs}}}}$ {totcost} "
         + (f"[{item.value}]" if item.value else "")
     )

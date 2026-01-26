@@ -54,7 +54,7 @@ items:
   #    resource_name: resource_amount
   #    seconds: (defaults to 2)
   #    quantity: (defaults to 1)
-  water:
+  clean_water:
     pump:
       seconds: 1
   buckflower:
@@ -89,7 +89,7 @@ items:
   xiranite:
     skyforge:
       stabilized_carbon: 2
-      water: 1
+      clean_water: 1
     taints:
       - wuling
   carbon_powder:
@@ -190,23 +190,27 @@ items:
       originium_powder: 10
       seconds: 10
     value: 16
+    icon: https://endfield.wiki.gg/images/thumb/LC_Battery.png/72px-LC_Battery.png
   sc_valley_battery:
     package:
       ferrium_part: 10
       originium_powder: 15
       seconds: 10
     value: 30
+    icon: https://endfield.wiki.gg/images/thumb/SC_Battery.png/72px-SC_Battery.png
   hc_valley_battery:
     package:
       steel_part: 10
       dense_originium_powder: 15
       seconds: 10
     value: 70
+    icon: https://endfield.wiki.gg/images/thumb/HC_Battery.png/72px-HC_Battery.png
   hc_wuling_battery:
     package:
       xiranite: 5
       dense_originium_powder: 15
       seconds: 10
+    icon: https://endfield.wiki.gg/images/thumb/HC_Battery.png/72px-HC_Battery.png
   buckflower_powder:
     shred:
       buckflower: 1
@@ -218,15 +222,18 @@ items:
       buckflower_powder: 5
       seconds: 10
     value: 10
+    icon: https://endfield.wiki.gg/images/thumb/Buck_Capsule_%28C%29.png/72px-Buck_Capsule_%28C%29.png
   buck_capsule_b:
     fill:
       ferrium_bottle: 10
       buckflower_powder: 10
       seconds: 10
     value: 27
+    icon: https://endfield.wiki.gg/images/thumb/Buck_Capsule_%28B%29.png/72px-Buck_Capsule_%28B%29.png
   buck_capsule_a:
     fill:
       steel_bottle: 10
       ground_buckflower_powder: 10
       seconds: 10
     value: 70
+    icon: https://endfield.wiki.gg/images/thumb/Buck_Capsule_%28A%29.png/72px-Buck_Capsule_%28A%29.png
