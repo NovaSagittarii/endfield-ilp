@@ -74,6 +74,7 @@ items:
   clean_water:
     pump:
       seconds: 1
+      quantity: 2
   # MARK: AIC PRODUCTS
   jincao_solution:
     crucible:
