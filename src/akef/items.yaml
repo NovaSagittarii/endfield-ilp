@@ -152,9 +152,11 @@ items:
       originium_powder: 2
       sandleaf_powder: 1
   dense_origocrust_powder:
-    grind:
-      origocrust_powder: 2
-      sandleaf_powder: 1
+    # grind:
+    #   origocrust_powder: 2
+    #   sandleaf_powder: 1
+    refine:
+      dense_originium_powder: 1 # this is one less refiner!!
   cryston_powder:
     grind:
       amethyst_powder: 2
