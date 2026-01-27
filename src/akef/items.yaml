@@ -16,7 +16,7 @@ power:
   hc_valley_battery:
     power: 1100
     seconds: 40
-  hc_wuling_battery:
+  lc_wuling_battery:
     power: 1600
     seconds: 40
 actions:
@@ -232,13 +232,13 @@ items:
       seconds: 10
     value: 70
     icon: https://endfield.wiki.gg/images/thumb/HC_Battery.png/72px-HC_Battery.png
-  hc_wuling_battery:
+  lc_wuling_battery:
     package:
       xiranite: 5
       dense_originium_powder: 15
       seconds: 10
     value: 25
-    icon: https://endfield.wiki.gg/images/thumb/HC_Battery.png/72px-HC_Battery.png
+    icon: https://endfield.wiki.gg/images/thumb/LC_Battery.png/72px-LC_Battery.png
   ferrium_bottle_water:
     fill:
       ferrium_bottle: 1
