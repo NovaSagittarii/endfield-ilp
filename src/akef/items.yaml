@@ -45,22 +45,48 @@ actions:
   skyforge:
     power: 50
   plantloop:
-    power: 50
+    power: 40 # planting unit x1 (20) + seed picking unit x2 (10)
+  plantloop2:
+    power: 30 # planting unit x1 (20) + seed picking unit x1 (10)
   pump:
     power: 10
 items:
   # itemname:
   #   method:
-  #    resource_name: resource_amount
-  #    seconds: (defaults to 2)
-  #    quantity: (defaults to 1)
-  clean_water:
-    pump:
-      seconds: 1
+  #     input_resource_name: resource_amount  [multiple lines]
+  #     seconds: (defaults to 2)
+  #     quantity: (defaults to 1)
+  #   icon:
+  #   taints: []
+  # MARK: NATURAL RESOURCES
   buckflower:
     plantloop: {}
   sandleaf:
     plantloop: {}
+  jincao:
+    plantloop2:
+      clean_water: 1
+      quantity: 2
+  yazhen:
+    plantloop2:
+      clean_water: 1
+      quantity: 2
+  clean_water:
+    pump:
+      seconds: 1
+  # MARK: AIC PRODUCTS
+  jincao_solution:
+    crucible:
+      jincao_powder: 1
+      clean_water: 1
+  yazhen_solution:
+    crucible:
+      yazhen_powder: 1
+      clean_water: 1
+  liquid_xiranite:
+    crucible:
+      xiranite: 1
+      clean_water: 1
   carbon:
     refine:
       sandleaf: 1
@@ -89,6 +115,7 @@ items:
     skyforge:
       stabilized_carbon: 2
       clean_water: 1
+    value: 1
     taints:
       - wuling
   carbon_powder:
@@ -209,11 +236,36 @@ items:
       xiranite: 5
       dense_originium_powder: 15
       seconds: 10
+    value: 25
     icon: https://endfield.wiki.gg/images/thumb/HC_Battery.png/72px-HC_Battery.png
+  ferrium_bottle_water:
+    fill:
+      ferrium_bottle: 1
+      clean_water: 1
+  ferrium_bottle_jincao:
+    fill:
+      ferrium_bottle: 1
+      jincao_solution: 1
+  ferrium_bottle_yazhen:
+    fill:
+      ferrium_bottle: 1
+      yazhen: 1
+  ferrium_bottle_xiranite:
+    fill:
+      ferrium_bottle: 1
+      liquid_xiranite: 1
+  # MARK: USABLE ITEMS
   buckflower_powder:
     shred:
       buckflower: 1
-      seconds: 2
+      quantity: 2
+  jincao_powder:
+    shred:
+      jincao: 1
+      quantity: 2
+  yazhen_powder:
+    shred:
+      yazhen: 1
       quantity: 2
   buck_capsule_c:
     fill:
@@ -229,6 +281,19 @@ items:
       seconds: 10
     value: 27
     icon: https://endfield.wiki.gg/images/thumb/Buck_Capsule_%28B%29.png/72px-Buck_Capsule_%28B%29.png
+  jincao_drink:
+    package:
+      ferrium_part: 10
+      ferrium_bottle_jincao: 5
+      seconds: 10
+    icon: https://endfield.wiki.gg/images/thumb/Jincao_Drink.png/72px-Jincao_Drink.png
+  yazhen_syringe_c:
+    package:
+      ferrium_part: 10
+      ferrium_bottle_yazhen: 5
+      seconds: 10
+    icon: https://endfield.wiki.gg/images/thumb/Yazhen_Syringe_%28C%29.png/72px-Yazhen_Syringe_%28C%29.png
+    value: 16
   buck_capsule_a:
     fill:
       steel_bottle: 10
