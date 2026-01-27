@@ -7,7 +7,8 @@ Made for fun since it's an silly application of linear programming.
 
 ## Screenshot
 
-![Screenshot](https://github.com/user-attachments/assets/46b7dc05-ed56-4095-8118-0d930d8f224b)
+![Screenshot1](https://github.com/user-attachments/assets/3500ba8c-17bd-4d62-910f-1e5d20e49c79)
+![Screenshot2](https://github.com/user-attachments/assets/a828457a-5f2d-4b57-8eac-cd2624a2d116)
 
 ## Running
 
