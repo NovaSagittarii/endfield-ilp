@@ -32,33 +32,38 @@ with open(Path(__file__).resolve().parent / "items.yaml", "r") as file:
     # kinda fake values to make it calculate properly
     # an instance of a raw_resource represents one full belt of the item
 
-    def dfs(k: str) -> None:
+    for k in _items:
         if k in raw_resources or k in items:
-            return
+            continue
         u = _items[k]
-        action: Final[str] = list(k for k in u.keys() if k != "value")[0]
-        recipe: Final[dict] = u[action]
+        action: str = list(k for k in u.keys() if k != "value")[0]
+        recipe: dict = u[action]
 
         value = u.get("value", 0)
         seconds = recipe.get("seconds", 2)
         quantity = recipe.get("quantity", 1)
-        prereqs: List[Tuple[str, int]] = []
-        for item, amt in recipe.items():
-            if item in ("seconds", "quantity"):
-                continue
-            prereqs.append((item, amt))
-            dfs(item)
+
         items[k] = Item(
             name=k,
             seconds_to_craft=seconds,
             action=action,
             overhead=actions[action],
             output=quantity,
-            inputs=[(amt, items[p]) for p, amt in prereqs],
+            inputs=[],
             value=value,
             taints=u.get("taints", []),
             icon=u.get("icon", to_wiki(k)),
         )
 
     for name in _items:
-        dfs(name)
+        u = _items[name]
+        action: str = list(k for k in u.keys() if k != "value")[0]
+        recipe: dict = _items[name][action]
+        prereqs: List[Tuple[str, int]] = []
+        for item, amt in recipe.items():
+            if item in ("seconds", "quantity"):
+                continue
+            prereqs.append((item, amt))
+
+        for p, amt in prereqs:
+            items[name].inputs_.append((amt, items[p]))
