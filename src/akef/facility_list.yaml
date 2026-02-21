@@ -1,0 +1,166 @@
+# MARK: Production I
+refine:
+  layout: |
+    ic>###>oc
+    ic>###>oc
+    ic>###>oc
+shred:
+  layout: |
+    ic>###>oc
+    ic>###>oc
+    ic>###>oc
+fit:
+  layout: |
+    ic>###>oc
+    ic>###>oc
+    ic>###>oc
+mold:
+  layout: |
+    ic>###>oc
+    ic>###>oc
+    ic>###>oc
+plant:
+  layout: |
+    ic>#####>oc
+    ic>#####>oc
+    ic>#####>oc
+    ic>#####>oc
+    ic>#####>oc
+  layout2: |
+    ic>#####>oc
+    ic>#####>oc
+    ic>#####>oc
+    ic>#####>oc
+    ic>#####>oc
+    .....^ip...
+seed:
+  layout: |
+    ic>#####>oc
+    ic>#####>oc
+    ic>#####>oc
+    ic>#####>oc
+    ic>#####>oc
+
+# MARK: Production II
+gear:
+  layout: |
+    ic>####>oc
+    ic>####>oc
+    ic>####>oc
+    ic>####>oc
+    ic>####>oc
+    ic>####>oc
+fill:
+  layout: |
+    ic>####>oc
+    ic>####>oc
+    ic>####>oc
+    ic>####>oc
+    ic>####>oc
+    ic>####>oc
+  layout2: |
+    ic>####>oc
+    ic>####>oc
+    ic>####>oc
+    ic>####>oc
+    ic>####>oc
+    ic>####>oc
+    ....^ip...
+package:
+  layout: |
+    ic>####>oc
+    ic>####>oc
+    ic>####>oc
+    ic>####>oc
+    ic>####>oc
+    ic>####>oc
+grind:
+  layout: |
+    ic>####>oc
+    ic>####>oc
+    ic>####>oc
+    ic>####>oc
+    ic>####>oc
+    ic>####>oc
+crucible:
+  layout: |
+    ..icv.vic..
+    ...#####...
+    ip>#####>op
+    ...#####...
+    ip>#####>op
+    ...#####...
+    ..ocv.voc..
+skyforge:
+  layout: |
+    ic>#####>oc
+    ic>#####>oc
+    ic>#####>oc
+    ic>#####>oc
+    ic>#####>oc
+    .....^ip...
+
+# MARK: Depot Access
+protocol_stash:
+  special: True
+  layout: |
+    ic>###
+    ic>###
+    ic>###
+depot_unloader:
+  special: True
+  requires_power: False
+  layout: |
+    #
+    #>oc
+    #
+bus_depot_port:
+  special: True
+  requires_power: False
+  layout: |
+    ####
+    ####
+    ####
+    ####
+bus_depot_section:
+  special: True
+  requires_power: False
+  layout: |
+    ########
+    ########
+    ########
+    ########
+aic:
+  special: True
+  requires_power: False
+  layout: |
+    ....o..o..o....
+    ....c..c..c....
+    ....^..^..^....
+    ...#########...
+    ic>#########<ic
+    ic>#########<ic
+    ic>#########<ic
+    ic>#########<ic
+    ic>#########<ic
+    ic>#########<ic
+    ic>#########<ic
+    ...#########...
+    ....v..v..v....
+    ....o..o..o....
+    ....c..c..c....
+
+# MARK: Power
+pylon:
+  special: True
+  requires_power: False
+  power_range: 5
+  layout: |
+    ##
+    ##
+thermal_bank:
+  special: True
+  requires_power: False
+  layout: |
+    ##<ic
+    ##<ic
