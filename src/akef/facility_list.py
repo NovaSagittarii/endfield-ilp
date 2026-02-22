@@ -3,7 +3,7 @@ from typing import Final, MutableSequence, Tuple
 
 import yaml
 
-from akef.facility import Facility, FacilityIO, directions
+from akef.facility import Facility, FacilityIO, FacilityProperties, directions
 
 MODIFIER_FLAGS: Final = "iocps"
 """
@@ -15,7 +15,7 @@ s - shift (forwards for input, backwards for output)\\
 """
 
 
-def parse_facility(grid: list[str]) -> Facility:
+def parse_facility(name: str, grid: list[str]) -> Facility:
     n = len(grid)
     # m = len(grid[0])
     solid: MutableSequence[FacilityIO] = []
@@ -52,7 +52,7 @@ def parse_facility(grid: list[str]) -> Facility:
                     )
 
     return Facility(
-        k,
+        name,
         solid=solid,
         input_conveyor=[c for c, f in io_cells if "i" in f and "c" in f],
         input_pipe=[c for c, f in io_cells if "i" in f and "p" in f],
@@ -61,19 +61,33 @@ def parse_facility(grid: list[str]) -> Facility:
     ).align()
 
 
+facility_dict: dict[str, Facility] = {}
+"""List of special facilities (power, depot access)"""
+
 _facility_list: MutableSequence[Facility] = []
 with open(Path(__file__).resolve().parent / "facility_list.yaml", "r") as file:
     _data: Final[dict] = yaml.safe_load(file.read())
     for k, v in _data.items():
         layouts: MutableSequence[Facility] = []
         grid: list[str] = v["layout"].strip().split("\n")
-        layouts.append(parse_facility(grid))
+        layouts.append(parse_facility(k, grid))
 
         if "layout2" in v:
-            layouts.append(parse_facility(v["layout2"].strip().split("\n")))
+            layouts.append(parse_facility(k, v["layout2"].strip().split("\n")))
 
-        # NOTE: other properties (power_range, special, etc) are currently not used
+        props = FacilityProperties(
+            special=v.get("special", False),
+            requires_power=v.get("requires_power", True),
+            power_range=v.get("power_range", 0),
+        )
+        for layout in layouts:
+            layout.props = props
+
         _facility_list.extend(layouts)
+
+        if props.special:
+            assert len(layouts) == 1, "Assume there are no alt layouts for this type."
+            facility_dict[k] = layouts[0]
 
 facility_list: Final = tuple(_facility_list)
 
