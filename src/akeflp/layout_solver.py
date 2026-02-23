@@ -257,7 +257,7 @@ def solve(shape: Tuple[int, int], into_depot: dict[str, int]) -> None:
                     if af.facility.name == "protocol_stash" and af.input.get(k):
                         w.row[Xfc[f][c]] = -1
 
-    bounds = [(0, 0) for _ in range(Xend)]
+    bounds = [(0, 1) for _ in range(Xend)]
     # disallow facilities to go outside the layout grid
     for c, x, y in Cxy:
         for f, af in enumerate(_facility_list):
