@@ -5,6 +5,7 @@ Docstring for akeflp.layout_solver
 from __future__ import annotations
 
 from itertools import chain
+from time import time
 from typing import Final, MutableSequence, Tuple, TypeAlias
 
 import numpy as np
@@ -276,14 +277,17 @@ def solve(shape: Tuple[int, int], into_depot: dict[str, int]) -> None:
     # MARK: Solve
     print("A_ub size=", Xend * len(A_ub))
     print(f"{Xend} variables, {len(A_ub)} constraints", flush=True)
+    t0 = time()
     res = linprog(
-        [0 for _ in range(Xend)],  # hopefully it terminates faster?
+        # [1 for _ in range(Xend)],  # minimize placements
+        [0 for _ in range(Xend)],  # terminates faster, only feasibility ILP
         A_ub=A_ub,
         b_ub=b_ub,
         bounds=bounds,
         integrality=1,
         # options={"presolve": False},
     )
+    print(f"Time elapsed: {time() - t0:.4f}s")
     print(res)
 
     # def cxy(x: int, y: int) -> int:
