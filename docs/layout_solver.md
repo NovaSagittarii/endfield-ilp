@@ -82,7 +82,7 @@ $$
 \bigwedge_c^C \bigwedge_d^D \sum_i^I x_{cdi} &\le 1 \\
 \bigwedge_c^C \sum_d^D \sum_i^I x_{cdi} &\le 2 \\
 \bigwedge_c^C \bigwedge_{\bf d}^{D_p} \sum_d^{\bf d} \sum_i^I x_{cdi} &\le 1 \\
-\bigwedge_c^C \bigwedge_d^D \bigwedge_i^I \left[ x_{cdi} - \sum_{c'}^C \sum_{d':(c',d') \in \iota_{cd}}^D x_{c'd'i} - \sum_f^F \sum_{c':(c,d)\in \sigma^o_{fc'}}^C x_{fc'} \right] &\le 0 \\
+\bigwedge_c^C \bigwedge_i^I \sum_d^D  \left[ x_{cdi} - \sum_{c'}^C \sum_{d':(c',d') \in \iota_{cd}}^D x_{c'd'i} - \sum_f^F \sum_{c':(c,d)\in \sigma^o_{fc'}}^C x_{fc'} \right] &\le 0 \\
 \end{align}
 $$
 
