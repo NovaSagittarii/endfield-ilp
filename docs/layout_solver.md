@@ -99,7 +99,7 @@ $$
 \bigwedge_c^C \left[ 4\left( \sum_f^F\sum_{c':c\in\rho_{fc'}}^C x_{fc'} \right) + \sum_d^D \sum_i^I x_{cdi} \right] &\le 4 \\
 \bigwedge_c^C \bigwedge_f^{F_r} \left[ x_{fc} - \sum_{f'}^{F_p} \sum_{c':c'\in\rho_{fc}}^C \sum_{c'':c'\in\pi_{f'c''}}^C x_{f'c''} \right] &\le 0 \\
 \bigwedge_c^C \bigwedge_i^I \bigwedge_f^F \left( \alpha_{fi} x_{fc} - \sum_d^D\sum_{c':(c',d)\in\sigma^i_{fc}}^C x_{c'di} \right) &\le 0 \\
-\bigwedge_f^F \bigwedge_c^C \bigwedge_i^I \left[ \sum_{c'\in\sigma^o_{fc}}^C x_{c'di} - \sum_{c'}^{C} \min\left(\beta_{fi}, \left| \sigma^o_{fc} \cap \sigma^o_{fc'} \right| \right) \cdot x_{fc'} \right] &\le 0
+\bigwedge_f^F \bigwedge_c^C \bigwedge_i^I \left[ |C|\cdot x_{fc} + \sum_{(c',d)\in\sigma^o_{fc}}^{C}x_{c'di} \right] &\le |C|+\beta_{fi}
 % something about all overlaps... ??
 \end{align}
 $$
