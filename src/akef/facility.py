@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from enum import Enum
+from functools import cache
 from typing import (
     Final,
     MutableSequence,
@@ -21,9 +22,9 @@ class Direction(Enum):
     ---> +x (RIGHT)
     ```"""
 
-    UP = (0, 1)
+    UP = (0, -1)
     RIGHT = (1, 0)
-    DOWN = (0, -1)
+    DOWN = (0, 1)
     LEFT = (-1, 0)
 
 
@@ -66,6 +67,18 @@ class FacilityIO:
         """
 
         return (self.x, self.y)
+
+    def unravel(self, N: int, M: int) -> Tuple[int, int]:
+        """
+        Suppose (x, y) are on a (N, M) sized grid. Return the unravel_index of
+        (x, y) on this grid and direction index (for usage as a LP variable)
+
+        Returns (c, d)
+        """
+        if 0 <= self.x < N and 0 <= self.y < M:
+            return self.x + self.y * N, directions.index(self.direction)
+        else:
+            raise IndexError()
 
 
 # python polymorphism kinda messy
@@ -185,6 +198,7 @@ class ActiveFacility:
     def occupied_region(self, anchor: XYTuple) -> Sequence[XYTuple]:
         return [p.translate(*anchor).as_xy() for p in self.facility.solid]
 
+    @cache
     def powered_region(self, anchor: XYTuple) -> Sequence[XYTuple]:
         # maybe generalize later... though relay is strictly worse
         if self.facility.name == "pylon":
@@ -198,8 +212,8 @@ class ActiveFacility:
             return [p.translate(*anchor).as_xy() for p in cells]
         return []
 
-    def input_ports(self, anchor: XYTuple) -> Sequence[XYTuple]:
-        return [p.translate(*anchor).as_xy() for p in self.facility.input_conveyor]
+    def input_ports(self, anchor: XYTuple) -> Sequence[FacilityIO]:
+        return [p.translate(*anchor) for p in self.facility.input_conveyor]
 
-    def output_ports(self, anchor: XYTuple) -> Sequence[XYTuple]:
-        return [p.translate(*anchor).as_xy() for p in self.facility.output_conveyor]
+    def output_ports(self, anchor: XYTuple) -> Sequence[FacilityIO]:
+        return [p.translate(*anchor) for p in self.facility.output_conveyor]
