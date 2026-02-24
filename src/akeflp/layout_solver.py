@@ -9,7 +9,7 @@ from time import time
 from typing import Final, MutableSequence, Tuple, TypeAlias
 
 import numpy as np
-from scipy.optimize import linprog  # type: ignore
+import pulp as lp  # type: ignore
 
 from akef.facility import ActiveFacility, XYTuple
 from akef.facility_list import directions, facility_dict, facility_list
@@ -314,29 +314,38 @@ def solve(shape: Tuple[int, int], into_depot: dict[str, int]) -> None:
     # for c in C:
     #     for f in range(len(_facility_list)):
     #         coef[Xfc[f][c]] = 1  # try minimize facilities? (still too slow!!)
-    t0 = time()
-    res = linprog(
-        coef,
-        A_ub=A_ub,
-        b_ub=b_ub,
-        bounds=bounds,
-        integrality=1,
-        # options={"presolve": False},
+
+    model = lp.LpProblem(
+        "".join(map(lambda x: x.__repr__(), [f"on {N}x{M} grid. produce", into_depot])),
+        lp.LpMinimize,
     )
+    vars = [
+        lp.LpVariable(f"x{i}", lr[0], lr[1], cat="Integer")
+        for i, lr in zip(range(Xend), bounds)
+    ]
+    model += sum(k * vars[i] for i, k in enumerate(coef))  # objective
+    for A, b in zip(A_ub, b_ub):
+        model += sum(k * vars[i] for i, k in enumerate(A) if k) <= b
+
+    t0 = time()
+    # solver = lp.apis.HiGHS()
+    solver = lp.apis.MOSEK()  # o wow, mosek kinda fast...
+    assert solver.available()
+    model.solve(solver)
     print(f"Time elapsed: {time() - t0:.4f}s")
-    print(res)
+    sol = [lp.value(x) for x in vars]
 
     def cxy(x: int, y: int) -> int:
         return x + y * N
 
-    # res.x = [0 for _ in range(Xend)]
+    # sol = [0 for _ in range(Xend)]
     # def place_facility(x: int, y: int, fname: str, dir: str) -> None:
     #     for f, af in enumerate(_facility_list):
     #         if af.facility.name == fname and (
     #             not af.facility.input_conveyor
     #             or af.facility.input_conveyor[0].direction.name == dir
     #         ):
-    #             res.x[Xfc[f][cxy(x, y)]] = 1
+    #             sol[Xfc[f][cxy(x, y)]] = 1
     #             break
     #     else:
     #         raise ValueError(f"Can't find facility <{fname}> with dir <{dir}>")
@@ -345,7 +354,7 @@ def solve(shape: Tuple[int, int], into_depot: dict[str, int]) -> None:
     #     for dc in path:
     #         d = "^>v<".index(dc)
     #         dx, dy = directions[d].value
-    #         res.x[Xcdi[cxy(x, y)][d][i]] = 1
+    #         sol[Xcdi[cxy(x, y)][d][i]] = 1
     #         x += dx
     #         y += dy
     # place_facility(1, 1, "seed", "DOWN")
@@ -359,30 +368,30 @@ def solve(shape: Tuple[int, int], into_depot: dict[str, int]) -> None:
     # place_belt(9, 6, "buckflower", "v")
 
     # MARK: Reconstruct
-    assert res.x is not None, "Expect possible."
-    if res.x is None:
+    assert sol is not None, "Expect possible."
+    if sol is None:
         return
-    res.x = tuple(map(round, res.x))  # round +eps to 0
+    sol = tuple(map(round, sol))  # round +eps to 0
 
     # TODO: remove loops ?
 
     for i, Ab in enumerate(zip(A_ub, b_ub)):
         A, b = Ab
-        if A @ res.x > b:
+        if A @ sol > b:
             print(f"Constraint violated: idx={i} msg={constraint_desc[i]}")
             row = A
-            print(row @ res.x, "<=? 0")
+            print(row @ sol, "<=? 0")
             print(dict(sorted({i: int(x) for i, x in enumerate(row) if x}.items())))
             break
-        # assert A @ res.x <= b, f"{A} {res.x} = {A @ res.x} </= {b}"
+        # assert A @ sol <= b, f"{A} {sol} = {A @ sol} </= {b}"
     else:
         print("Solution is valid. Constraints passed.")
-    print("sol:", set(i for i, x in enumerate(res.x) if x))
+    print("sol:", set(i for i, x in enumerate(sol) if x))
 
     layout = [["  " for _ in range(N)] for _ in range(M)]
     for c, x, y in Cxy:
         for f, af in enumerate(_facility_list):
-            if res.x[Xfc[f][c]]:
+            if sol[Xfc[f][c]]:
                 print("-", af.facility.name, "@", (x, y), [f, c])
                 # for pos in af.input_ports((x, y)):
                 #     try:
@@ -390,7 +399,7 @@ def solve(shape: Tuple[int, int], into_depot: dict[str, int]) -> None:
                 #         print("  >", pos.x, pos.y, pos.direction, c2, d2)
                 #         for item in af.input:
                 #             i = _items.index(item)
-                #             print("  =>", res.x[Xcdi[c2][d2][i]], item)
+                #             print("  =>", sol[Xcdi[c2][d2][i]], item)
                 #     except IndexError:
                 #         pass
                 if af.facility.name == "pylon":
@@ -429,14 +438,14 @@ def solve(shape: Tuple[int, int], into_depot: dict[str, int]) -> None:
     for c, x, y in Cxy:
         for d in D:
             for i, item in enumerate(_items):
-                if res.x[Xcdi[c][d][i]]:
+                if sol[Xcdi[c][d][i]]:
                     print(f"- ({x}, {y}) {'^>v<'[d]} {item}")
                     layout_out[y][x] += "^>v<"[d]
                     dx, dy = directions[d].value
                     layout_in[y + dy][x + dx] += "^>v<"[d]
     for c, x, y in Cxy:
         for f, af in enumerate(_facility_list):
-            if res.x[Xfc[f][c]]:
+            if sol[Xfc[f][c]]:
                 for pos in af.output_ports((x, y)):
                     dc = "^>v<"[directions.index(pos.direction)]
                     layout_in[pos.y][pos.x] = dc
