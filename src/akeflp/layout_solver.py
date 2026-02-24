@@ -10,16 +10,14 @@ from typing import Final, MutableSequence, Tuple, TypeAlias
 
 import numpy as np
 import pulp as lp  # type: ignore
+from scipy.sparse import dok_array
 
 from akef.facility import ActiveFacility, XYTuple
 from akef.facility_list import directions, facility_dict, facility_list
 from akef.items import items
 from akef.resource import raw_resources
 
-# from scipy.sparse import dok_array, sparray
-
-
-AT: TypeAlias = np.ndarray  # | sparray
+AT: TypeAlias = dok_array  # np.ndarray
 
 
 def solve(shape: Tuple[int, int], into_depot: dict[str, int]) -> None:
@@ -115,9 +113,8 @@ def solve(shape: Tuple[int, int], into_depot: dict[str, int]) -> None:
         ) -> None:
             self.A_ub: Final = A_ub
             self.b_ub: Final = b_ub
-            self.row: Final = np.zeros((Xend,), dtype=np.int8)
-            # dok_array((Xend,), dtype=np.int8)
-            # np.zeros((Xend,), dtype=np.int8)
+            # self.row: Final = np.zeros((Xend,), dtype=np.int8)
+            self.row: Final = dok_array((Xend,), dtype=np.int8)
             # np.ndarray[tuple[int], np.dtype[np.int8]]
 
             self.b: int = b
@@ -303,10 +300,10 @@ def solve(shape: Tuple[int, int], into_depot: dict[str, int]) -> None:
 
     # MARK: Solve
     print("A_ub size=", Xend * len(A_ub))
-    nz_ct = sum(np.count_nonzero(x) for x in A_ub)
+    # nz_ct = sum(np.count_nonzero(x) for x in A_ub)
     print(
         f"{Xend} variables, {len(A_ub)} constraints,",
-        f"{nz_ct} nonzeroes ({100 * nz_ct / (Xend * len(A_ub)):.4f}% dense)",
+        # f"{nz_ct} nonzeroes ({100 * nz_ct / (Xend * len(A_ub)):.4f}% dense)",
         flush=True,
     )
     coef = [0 for _ in range(Xend)]  # terminates faster, only feasibility ILP
@@ -325,7 +322,7 @@ def solve(shape: Tuple[int, int], into_depot: dict[str, int]) -> None:
     ]
     model += sum(k * vars[i] for i, k in enumerate(coef))  # objective
     for A, b in zip(A_ub, b_ub):
-        model += sum(k * vars[i] for i, k in enumerate(A) if k) <= b
+        model += sum(k * vars[i] for i, k in A.items() if k) <= b
 
     t0 = time()
     # solver = lp.apis.HiGHS()
@@ -375,18 +372,18 @@ def solve(shape: Tuple[int, int], into_depot: dict[str, int]) -> None:
 
     # TODO: remove loops ?
 
-    for i, Ab in enumerate(zip(A_ub, b_ub)):
-        A, b = Ab
-        if A @ sol > b:
-            print(f"Constraint violated: idx={i} msg={constraint_desc[i]}")
-            row = A
-            print(row @ sol, "<=? 0")
-            print(dict(sorted({i: int(x) for i, x in enumerate(row) if x}.items())))
-            break
-        # assert A @ sol <= b, f"{A} {sol} = {A @ sol} </= {b}"
-    else:
-        print("Solution is valid. Constraints passed.")
-    print("sol:", set(i for i, x in enumerate(sol) if x))
+    # for i, Ab in enumerate(zip(A_ub, b_ub)):
+    #     A, b = Ab
+    #     if A @ sol > b:
+    #         print(f"Constraint violated: idx={i} msg={constraint_desc[i]}")
+    #         row = A
+    #         print(row @ sol, "<=? 0")
+    #         print(dict(sorted({i: int(x) for i, x in enumerate(row) if x}.items())))
+    #         break
+    #     # assert A @ sol <= b, f"{A} {sol} = {A @ sol} </= {b}"
+    # else:
+    #     print("Solution is valid. Constraints passed.")
+    # print("sol:", set(i for i, x in enumerate(sol) if x))
 
     layout = [["  " for _ in range(N)] for _ in range(M)]
     for c, x, y in Cxy:
@@ -497,7 +494,7 @@ if __name__ == "__main__":
     # solve((8, 5), {"origocrust": 1})  # requires conveyor bend (from facil out)
     # solve((10, 3), {"origocrust": 1})  # conveyor extend
     # solve((3, 10), {"origocrust": 1})  # rotation should work
-    # solve((12, 12), {"buckflower": 1})  # plant loop
+    solve((12, 12), {"buckflower": 1})  # plant loop
     # solve((12, 12), {"buckflower_powder": 1})  # plant loop with powder
-    solve((25, 12), {"buck_capsule_c": 1})
+    # solve((25, 12), {"buck_capsule_c": 1})
     pass
