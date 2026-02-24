@@ -41,7 +41,11 @@ def solve(shape: Tuple[int, int], into_depot: dict[str, int]) -> None:
                     _facility_list.append(
                         ActiveFacility(
                             facility=facility,
-                            input={k.name: v for v, k in recipe.inputs},
+                            input={
+                                # how many belts worth you need (0.5/s is a belt)
+                                k.name: round(v // (recipe.seconds_to_craft / 2))
+                                for v, k in recipe.inputs
+                            },
                             output={recipe.name: recipe.output},
                         )
                     )
@@ -326,7 +330,8 @@ def solve(shape: Tuple[int, int], into_depot: dict[str, int]) -> None:
 
     t0 = time()
     # solver = lp.apis.HiGHS()
-    solver = lp.apis.MOSEK()  # o wow, mosek kinda fast...
+    # o wow, mosek kinda fast...
+    solver = lp.apis.MOSEK(options={"MSK_IPAR_NUM_THREADS": 0})
     assert solver.available()
     model.solve(solver)
     print(f"Time elapsed: {time() - t0:.4f}s")

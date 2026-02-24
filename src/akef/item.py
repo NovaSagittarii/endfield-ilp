@@ -22,6 +22,7 @@ class Item:
         icon: str | None = None,
     ) -> None:
         self.name: Final = name
+        self.seconds_to_craft: Final = seconds_to_craft
         self.base_rate: Final = 60 / seconds_to_craft
         """how many completions per minute"""
 
