@@ -10,7 +10,7 @@ from typing import Final, MutableSequence, Tuple, TypeAlias
 
 import numpy as np
 import pulp as lp  # type: ignore
-from scipy.sparse import dok_array
+from scipy.sparse import dok_array  # type: ignore
 
 from akef.facility import ActiveFacility, XYTuple
 from akef.facility_list import directions, facility_dict, facility_list
