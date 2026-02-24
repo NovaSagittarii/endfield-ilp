@@ -196,6 +196,11 @@ def solve(shape: Tuple[int, int], into_depot: dict[str, int]) -> None:
                 for i in I:
                     w.row[Xcdi[c][d][i]] = 1
 
+        # extra constraints for slight speedup, similar to (1)
+        for f, _ in enumerate(_facility_list):
+            with ConstraintRow(A_ub, b_ub, b=1, msg="Xfc no multi f") as w:
+                w.row[Xfc[f][c]] = 1
+
     # (6) - Facility is powered
     for c, x, y in Cxy:
         for f, af in F_powered:
