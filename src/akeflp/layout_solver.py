@@ -299,10 +299,14 @@ def solve(shape: Tuple[int, int], into_depot: dict[str, int]) -> None:
         f"{nz_ct} nonzeroes ({100 * nz_ct / (Xend * len(A_ub)):.4f}% dense)",
         flush=True,
     )
+    coef = [0 for _ in range(Xend)]  # terminates faster, only feasibility ILP
+    # coef = [1 for _ in range(Xend)]  # minimize placements
+    # for c in C:
+    #     for f in range(len(_facility_list)):
+    #         coef[Xfc[f][c]] = 1  # try minimize facilities? (still too slow!!)
     t0 = time()
     res = linprog(
-        # [1 for _ in range(Xend)],  # minimize placements
-        [0 for _ in range(Xend)],  # terminates faster, only feasibility ILP
+        coef,
         A_ub=A_ub,
         b_ub=b_ub,
         bounds=bounds,
