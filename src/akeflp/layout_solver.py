@@ -494,7 +494,7 @@ if __name__ == "__main__":
     # solve((8, 5), {"origocrust": 1})  # requires conveyor bend (from facil out)
     # solve((10, 3), {"origocrust": 1})  # conveyor extend
     # solve((3, 10), {"origocrust": 1})  # rotation should work
-    solve((12, 12), {"buckflower": 1})  # plant loop
+    # solve((12, 12), {"buckflower": 1})  # plant loop
     # solve((12, 12), {"buckflower_powder": 1})  # plant loop with powder
-    # solve((25, 12), {"buck_capsule_c": 1})
+    solve((25, 12), {"buck_capsule_c": 1})
     pass
