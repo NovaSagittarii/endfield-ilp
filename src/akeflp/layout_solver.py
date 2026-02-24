@@ -11,7 +11,7 @@ from typing import Final, MutableSequence, Tuple, TypeAlias
 import numpy as np
 from scipy.optimize import linprog  # type: ignore
 
-from akef.facility import ActiveFacility
+from akef.facility import ActiveFacility, XYTuple
 from akef.facility_list import directions, facility_dict, facility_list
 from akef.items import items
 from akef.resource import raw_resources
@@ -97,7 +97,8 @@ def solve(shape: Tuple[int, int], into_depot: dict[str, int]) -> None:
     F_power_src: Final = [*filter(lambda x: x[1].facility.props.power_range, F_enum)]
     Xcdi = np.arange(N * M * 4 * Ict).reshape((N * M, 4, Ict))
     Xfc = (np.arange(N * M * Fct) + Xcdi.size).reshape((Fct, N * M))
-    Xend = Xcdi.size + Xfc.size
+    XPc = (np.arange(N * M) + Xcdi.size + Xfc.size).reshape((N * M))
+    Xend = Xcdi.size + Xfc.size + XPc.size
 
     A_ub: MutableSequence[AT] = []
     b_ub: MutableSequence[int] = []
@@ -208,12 +209,23 @@ def solve(shape: Tuple[int, int], into_depot: dict[str, int]) -> None:
                 A_ub, b_ub, b=0, msg=f"6:{c} {x} {y} {af.facility.name}"
             ) as w:
                 w.row[Xfc[f][c]] = 1
-                for f2, af2 in F_power_src:
-                    # TODO: this part is VERY SLOW :sob:
-                    for x2, y2 in af.occupied_region((x, y)):
-                        for c3, x3, y3 in Cxy:
-                            if (x2, y2) in af2.powered_region((x3, y3)):
-                                w.row[Xfc[f2][c3]] = -1
+                w.row[XPc[c]] = -1
+                # for f2, af2 in F_power_src:
+                #     # TODO: this part is VERY SLOW :sob:
+                #     for x2, y2 in af.occupied_region((x, y)):
+                #         for c3, x3, y3 in Cxy:
+                #             if (x2, y2) in af2.powered_region((x3, y3)):
+                #                 w.row[Xfc[f2][c3]] = -1
+    parray: dict[XYTuple, ConstraintRow] = {}
+    for c, x, y in Cxy:
+        with ConstraintRow(A_ub, b_ub, b=0) as w:
+            w.row[XPc[c]] = 1
+            parray[(x, y)] = w
+    for c, x, y in Cxy:
+        for f, af in F_power_src:
+            for x2, y2 in af.powered_region((x, y)):
+                if 0 <= x2 < N and 0 <= y2 < M:
+                    parray[(x2, y2)].row[Xfc[f][c]] = -1
 
     # (7) - Facility input satisfied
     for c, x, y in Cxy:
