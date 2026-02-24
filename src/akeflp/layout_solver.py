@@ -282,14 +282,24 @@ def solve(shape: Tuple[int, int], into_depot: dict[str, int]) -> None:
             if af.facility.width + x > N or af.facility.height + y > M:
                 bounds[Xfc[f][c]] = (0, 0)
             # restrict allowed position of depot_unloader
-            # from akef.facility import Direction
-            # from typing import cast
-            # if af.facility.name == "depot_unloader" and (
-            #     x > 0
-            #     or cast(Direction, af.facility.output_conveyor[0].direction).name
-            #     != "RIGHT"
-            # ):
-            #     bounds[Xfc[f][c]] = (0, 0)
+            from typing import cast
+
+            from akef.facility import Direction
+
+            if (
+                af.facility.name == "depot_unloader"
+                and (
+                    x > 0
+                    or cast(Direction, af.facility.output_conveyor[0].direction).name
+                    != "RIGHT"
+                )
+                and (
+                    y > 0
+                    or cast(Direction, af.facility.output_conveyor[0].direction).name
+                    != "DOWN"
+                )
+            ):
+                bounds[Xfc[f][c]] = (0, 0)
 
     # MARK: Solve
     print("A_ub size=", Xend * len(A_ub))
@@ -479,5 +489,6 @@ if __name__ == "__main__":
     # solve((10, 3), {"origocrust": 1})  # conveyor extend
     # solve((3, 10), {"origocrust": 1})  # rotation should work
     # solve((12, 12), {"buckflower": 1})  # plant loop
-    solve((12, 12), {"buckflower_powder": 1})  # plant loop with powder
+    # solve((12, 12), {"buckflower_powder": 1})  # plant loop with powder
+    solve((25, 12), {"buck_capsule_c": 1})
     pass
