@@ -316,8 +316,9 @@ def solve(shape: Tuple[int, int], into_depot: dict[str, int]) -> None:
     print(f"Time elapsed: {time() - t0:.4f}s")
     print(res)
 
-    # def cxy(x: int, y: int) -> int:
-    #     return x + y * N
+    def cxy(x: int, y: int) -> int:
+        return x + y * N
+
     # res.x = [0 for _ in range(Xend)]
     # def place_facility(x: int, y: int, fname: str, dir: str) -> None:
     #     for f, af in enumerate(_facility_list):
@@ -353,6 +354,8 @@ def solve(shape: Tuple[int, int], into_depot: dict[str, int]) -> None:
         return
     res.x = tuple(map(round, res.x))  # round +eps to 0
 
+    # TODO: remove loops ?
+
     for i, Ab in enumerate(zip(A_ub, b_ub)):
         A, b = Ab
         if A @ res.x > b:
@@ -366,7 +369,7 @@ def solve(shape: Tuple[int, int], into_depot: dict[str, int]) -> None:
         print("Solution is valid. Constraints passed.")
     print("sol:", set(i for i, x in enumerate(res.x) if x))
 
-    layout = [["░" for _ in range(N)] for _ in range(M)]
+    layout = [["  " for _ in range(N)] for _ in range(M)]
     for c, x, y in Cxy:
         for f, af in enumerate(_facility_list):
             if res.x[Xfc[f][c]]:
@@ -380,44 +383,86 @@ def solve(shape: Tuple[int, int], into_depot: dict[str, int]) -> None:
                 #             print("  =>", res.x[Xcdi[c2][d2][i]], item)
                 #     except IndexError:
                 #         pass
-                for x2, y2 in af.occupied_region((x, y)):
-                    try:
+                if af.facility.name == "pylon":
+                    layout[y][x] = "╭─"
+                    layout[y][x + 1] = "╮ "
+                    layout[y + 1][x] = "╰─"
+                    layout[y + 1][x + 1] = "╯ "
+                elif af.facility.name == "depot_unloader":
+                    for x2, y2 in af.occupied_region((x, y)):
                         layout[y2][x2] = "#"
-                        if af.facility.name == "pylon":
-                            layout[y2][x2] = "%"
-                        if (
-                            x + 1 <= x2 < x - 1 + af.facility.width
-                            and y + 1 <= y2 < y - 1 + af.facility.height
-                        ):
-                            layout[y2][x2] = "."
-                    except IndexError:
-                        pass
+                else:
+                    rx, ry = af.facility.width - 1, af.facility.height - 1
+                    layout[y][x] = "╔═"
+                    layout[y][x + rx] = "╗ "
+                    layout[y + ry][x] = "╚═"
+                    layout[y + ry][x + rx] = "╝ "
+                    for dx in range(1, rx):
+                        layout[y][x + dx] = "══"
+                        layout[y + ry][x + dx] = "══"
+                    for dy in range(1, ry):
+                        layout[y + dy][x] = "║ "
+                        layout[y + dy][x + rx] = "║ "
+                    for i, char in enumerate(af.facility.name):
+                        j = i // 2
+                        dx = j % (rx - 1) + 1
+                        dy = j // (rx - 1) + 1
+                        if dy < ry:
+                            tmp = list(layout[y + dy][x + dx])
+                            tmp[i % 2] = char
+                            layout[y + dy][x + dx] = "".join(tmp)
     # print("\n".join(["".join(x) for x in layout]))
     # print()
 
+    layout_in = [["" for _ in range(N)] for _ in range(M)]
+    layout_out = [["" for _ in range(N)] for _ in range(M)]
     for c, x, y in Cxy:
-        z = ""
         for d in D:
             for i, item in enumerate(_items):
                 if res.x[Xcdi[c][d][i]]:
-                    print(f"- ({x}, {y}, #{c}) {'^>v<'[d]} {item}")
-                    z += "^>v<"[d]
-                    # layout[y][x] = "+" if len(z) >= 2 else z
-                    for pre, post in (
-                        ("^", "╻"),
-                        (">", "╸"),
-                        ("v", "╹"),
-                        ("<", "╺"),
-                        ("^>", "┓"),
-                        (">v", "┛"),
-                        ("v<", "┗"),
-                        ("<^", "┏"),
-                    ):
-                        if set(z) == set(pre):
-                            layout[y][x] = post
-
+                    print(f"- ({x}, {y}) {'^>v<'[d]} {item}")
+                    layout_out[y][x] += "^>v<"[d]
+                    dx, dy = directions[d].value
+                    layout_in[y + dy][x + dx] += "^>v<"[d]
+    for c, x, y in Cxy:
+        for f, af in enumerate(_facility_list):
+            if res.x[Xfc[f][c]]:
+                for pos in af.output_ports((x, y)):
+                    dc = "^>v<"[directions.index(pos.direction)]
+                    layout_in[pos.y][pos.x] = dc
+                    if layout_out[pos.y][pos.x]:
+                        assert pos.direction
+                        dx, dy = pos.direction.value
+                        x2, y2 = pos.translate(-dx, -dy).as_xy()
+                        layout[y2][x2] = dc + layout[y2][x2][1:]
+    for c, x, y in Cxy:
+        cin, cout = layout_in[y][x], layout_out[y][x]
+        if not cout:
+            continue
+        if len(cin) == 2 and len(cout) == 2:
+            layout[y][x] = "┼─"
+        elif len(cin) == 1 and len(cout) == 1:
+            if cin == cout:
+                layout[y][x] = "│ " if cin == "^" or cin == "v" else "──"
+            else:
+                for pre, post in (
+                    ("^> <v", "┌─"),
+                    ("^< >v", "┐ "),
+                    (">^ v<", "┘ "),
+                    ("v> <^", "└─"),
+                ):
+                    if cin + cout in pre:
+                        layout[y][x] = post
+                        break
+        else:
+            layout[y][x] = "?"
     print("\n".join(["".join(x) for x in layout]))
     print()
+
+    # print("\n".join([" ".join((y + '..')[:2] for y in x) for x in layout_in]))
+    # print()
+    # print("\n".join([" ".join((y + '..')[:2] for y in x) for x in layout_out]))
+    # print()
 
 
 if __name__ == "__main__":
@@ -433,6 +478,6 @@ if __name__ == "__main__":
     # solve((8, 5), {"origocrust": 1})  # requires conveyor bend (from facil out)
     # solve((10, 3), {"origocrust": 1})  # conveyor extend
     # solve((3, 10), {"origocrust": 1})  # rotation should work
-    solve((12, 13), {"buckflower": 1})  # plant loop
-    # solve((13, 13), {"buckflower_powder": 1})  # plant loop with powder
+    # solve((12, 12), {"buckflower": 1})  # plant loop
+    solve((12, 12), {"buckflower_powder": 1})  # plant loop with powder
     pass
