@@ -161,7 +161,7 @@ def solve(shape: Tuple[int, int], into_depot: dict[str, int]) -> None:
     # (4) - Conveyors have a source of items. Conservation of items.
     for c, x, y in Cxy:
         for i, item in enumerate(_items):
-            with ConstraintRow(A_ub, b_ub, b=0, msg=f"4 {c} {d} {i}") as w:
+            with ConstraintRow(A_ub, b_ub, b=0, msg=f"4 {c} {i}") as w:
                 for d in D:
                     w.row[Xcdi[c][d][i]] = 1
                     for d2, nd in enumerate(directions):  # candidate inflow
