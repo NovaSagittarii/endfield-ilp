@@ -390,7 +390,7 @@ def solve(shape: Tuple[int, int], into_depot: dict[str, int]) -> None:
                     layout[y + 1][x + 1] = "╯ "
                 elif af.facility.name == "depot_unloader":
                     for x2, y2 in af.occupied_region((x, y)):
-                        layout[y2][x2] = "#"
+                        layout[y2][x2] = "##"
                 else:
                     rx, ry = af.facility.width - 1, af.facility.height - 1
                     layout[y][x] = "╔═"
