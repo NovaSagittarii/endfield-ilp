@@ -276,7 +276,12 @@ def solve(shape: Tuple[int, int], into_depot: dict[str, int]) -> None:
 
     # MARK: Solve
     print("A_ub size=", Xend * len(A_ub))
-    print(f"{Xend} variables, {len(A_ub)} constraints", flush=True)
+    nz_ct = sum(np.count_nonzero(x) for x in A_ub)
+    print(
+        f"{Xend} variables, {len(A_ub)} constraints,",
+        f"{nz_ct} nonzeroes ({100 * nz_ct / (Xend * len(A_ub)):.4f}% dense)",
+        flush=True,
+    )
     t0 = time()
     res = linprog(
         # [1 for _ in range(Xend)],  # minimize placements
