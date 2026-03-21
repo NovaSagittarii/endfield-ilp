@@ -4,15 +4,13 @@ Raw resources
 
 from __future__ import annotations
 
-from pathlib import Path
 from typing import Final, Optional, TypeAlias
 
 import numpy as np
-import yaml
 
-with open(Path(__file__).resolve().parent / "items.yaml", "r") as file:
-    _data: Final[dict] = yaml.safe_load(file.read())
-    raw_resources: Final[list[str]] = list(_data["raw_resources"])
+from akef.data import _data
+
+raw_resources: Final[list[str]] = list(_data["raw_resources"])
 N: Final = len(raw_resources)
 POWER: Final = raw_resources.index("power")
 
