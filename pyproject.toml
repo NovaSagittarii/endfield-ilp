@@ -5,7 +5,7 @@ description = "ILP solver for Arknights: Endfield"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-    "pulp[highs,mosek]>=3.3.0",
+    "pulp[copt,gurobi,highs,mosek]>=3.3.0",
     "pyyaml>=6.0.3",
     "scipy>=1.15.3",
     "streamlit>=1.53.1",

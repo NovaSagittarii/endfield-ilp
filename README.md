@@ -18,3 +18,12 @@ Install Python and install uv.
 uv sync
 uv run streamlit run main.py
 ```
+
+### Running the solver
+
+Prints runtime statistics (wall and cputime) and sets as lower priority when running on shared machine.
+
+```sh
+time nice -n 5 uv run src/akeflp/layout_solver.py
+```
+

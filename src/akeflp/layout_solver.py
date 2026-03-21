@@ -310,11 +310,11 @@ def solve(shape: Tuple[int, int], into_depot: dict[str, int]) -> None:
         # f"{nz_ct} nonzeroes ({100 * nz_ct / (Xend * len(A_ub)):.4f}% dense)",
         flush=True,
     )
-    coef = [0 for _ in range(Xend)]  # terminates faster, only feasibility ILP
-    # coef = [1 for _ in range(Xend)]  # minimize placements
-    # for c in C:
-    #     for f in range(len(_facility_list)):
-    #         coef[Xfc[f][c]] = 1  # try minimize facilities? (still too slow!!)
+    # coef = [0 for _ in range(Xend)]  # terminates faster, only feasibility ILP
+    coef = [1 for _ in range(Xend)]  # minimize placements
+    for c in C:
+        for f in range(len(_facility_list)):
+            coef[Xfc[f][c]] = 10  # try minimize facilities? (still too slow!!)
 
     model = lp.LpProblem(
         "".join(map(lambda x: x.__repr__(), [f"on {N}x{M} grid. produce", into_depot])),
@@ -331,7 +331,14 @@ def solve(shape: Tuple[int, int], into_depot: dict[str, int]) -> None:
     t0 = time()
     # solver = lp.apis.HiGHS()
     # o wow, mosek kinda fast...
-    solver = lp.apis.MOSEK(options={"MSK_IPAR_NUM_THREADS": 0})
+    # solver = lp.apis.MOSEK(options={"MSK_IPAR_NUM_THREADS": 0})
+    solver = lp.apis.COPT(**{
+        "HeurLevel": 3,
+        "DivingHeurLevel": 3,
+        "RoundingHeurLevel": 3,
+        "SubMipHeurLevel": 3,
+        "PreSolve": 3,
+    })
     assert solver.available()
     model.solve(solver)
     print(f"Time elapsed: {time() - t0:.4f}s")
@@ -501,5 +508,6 @@ if __name__ == "__main__":
     # solve((3, 10), {"origocrust": 1})  # rotation should work
     # solve((12, 12), {"buckflower": 1})  # plant loop
     # solve((12, 12), {"buckflower_powder": 1})  # plant loop with powder
-    solve((25, 12), {"buck_capsule_c": 1})
+    # solve((25, 12), {"buck_capsule_c": 2})
+    solve((45, 24), {"buck_capsule_a": 1})
     pass
