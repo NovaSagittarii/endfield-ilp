@@ -35,7 +35,7 @@ facilities: Final = {
     "seed": {"power": 10},
     "gear": {"power": 10},
     "fill": {"power": 20},
-    "package": {"power": 20},
+    "pack": {"power": 20},
     "grind": {"power": 50},
     "crucible": {"power": 50},
     "skyforge": {"power": 50},
@@ -212,7 +212,7 @@ for item in ("ferrium", "cuprium"):
         )
 
 
-# MARK: package
+# MARK: pack
 _packings = {
     "industrial_explosive": (("amethyst_part", 5), ("aketine_powder", 1)),
     "lc_valley_battery": (("amethyst_part", 5), ("originium_powder", 10)),

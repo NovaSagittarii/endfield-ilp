@@ -36,7 +36,9 @@ for drecipe in _drecipes:
         )
     )
 
+    _items.extend(drecipe.inputs.keys())
     _items.extend(drecipe.outputs.keys())
+_items.extend(raw_resources)
 
 
 items: Final = tuple(set(_items))
