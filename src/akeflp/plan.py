@@ -39,7 +39,7 @@ class RegionPlan(NamedTuple):
     sell_plan: ItemFlow = {}
     power_plan: ItemBatch = {}
     profit: float = 0.0
-    facility_count: ItemBatch = {}
+    facility_plan: ItemBatch = {}
     recipe_plan: list[tuple[Recipe, float]] = []
     cross_transfer: dict[str, ItemFlow] = {}
 
@@ -59,6 +59,8 @@ class Plan:
         for r in self.regions:
             local_net = region_net[r.config.region_name]
             local_facility = req_facilities[r.config.region_name]
+            for k, v in r.config.raw_income.items():
+                local_net[k] += v
             for k, v in r.sell_plan.items():
                 local_net[k] -= v
             for dest, item_flow in r.cross_transfer.items():
@@ -73,14 +75,15 @@ class Plan:
                 local_facility[recipe.facility.name] += ceil(rate)
 
         # checks
-        for local_net in region_net.values():
-            for flow_rate in local_net.values():
+        for region_name, local_net in region_net.items():
+            for item_name, flow_rate in local_net.items():
                 if flow_rate < 0:
+                    print("Negative flow rate", region_name, item_name, flow_rate)
                     return False
         for region in self.regions:
             local_req_facilities = req_facilities[region.config.region_name]
             for facility, req_count in local_req_facilities.items():
-                if region.facility_count.get(facility, 0) < req_count:
+                if region.facility_plan.get(facility, 0) < req_count:
                     return False
 
         return True

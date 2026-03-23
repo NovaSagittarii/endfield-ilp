@@ -112,6 +112,15 @@ def solve(config: PlanConstraints) -> Plan:
     solver = lp.apis.HiGHS()
     model.solve(solver)
 
+    facility_plan: dict[str, dict[str, int]] = {k: {} for k in regions.keys()}
+    for region_name, region_plan in regions.items():
+        cts = facility_plan[region_name]
+        for alloc, _, recipe in region_plan.oplan:
+            k = recipe.facility.name
+            if k not in cts:
+                cts[k] = 0
+            cts[k] += round(cast(float, lp.value(alloc)))
+
     return Plan(
         [
             RegionPlan(
@@ -121,7 +130,7 @@ def solve(config: PlanConstraints) -> Plan:
                     for alloc, _, recipe in regions[region.region_name].oplan
                     if lp.value(alloc)
                 ],
-                facility_count={},
+                facility_plan=facility_plan[region.region_name],
                 power_plan={
                     ps.name: round(cast(float, lp.value(x)))
                     for x, ps in regions[region.region_name].pplan
