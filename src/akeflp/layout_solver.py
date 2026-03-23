@@ -332,13 +332,15 @@ def solve(shape: Tuple[int, int], into_depot: dict[str, int]) -> None:
     # solver = lp.apis.HiGHS()
     # o wow, mosek kinda fast...
     # solver = lp.apis.MOSEK(options={"MSK_IPAR_NUM_THREADS": 0})
-    solver = lp.apis.COPT(**{
-        "HeurLevel": 3,
-        "DivingHeurLevel": 3,
-        "RoundingHeurLevel": 3,
-        "SubMipHeurLevel": 3,
-        "PreSolve": 3,
-    })
+    solver = lp.apis.COPT(
+        **{
+            "HeurLevel": 3,
+            "DivingHeurLevel": 3,
+            "RoundingHeurLevel": 3,
+            "SubMipHeurLevel": 3,
+            "PreSolve": 3,
+        }  # type: ignore
+    )
     assert solver.available()
     model.solve(solver)
     print(f"Time elapsed: {time() - t0:.4f}s")

@@ -4,7 +4,7 @@ PuLP-based plan solver with intermediate variables and cross-region transfer
 
 from typing import NamedTuple, cast
 
-import pulp as lp
+import pulp as lp  # type: ignore
 
 from akef.recipe_list import (
     PowerSource,
