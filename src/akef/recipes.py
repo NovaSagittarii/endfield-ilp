@@ -253,7 +253,7 @@ for u, v in _powders.items():
     _recipes.append(
         RecipeData(
             facility="grind",
-            inputs={"sandflower_powder": 1, u: 2},
+            inputs={"sandleaf_powder": 1, u: 2},
             outputs={v: 1},
         )
     )
