@@ -52,8 +52,10 @@ class RegionPlan(NamedTuple):
     power_plan: ItemBatch = {}
     profit: float = 0.0
     facility_plan: ItemBatch = {}
-    recipe_plan: list[tuple[Recipe, float]] = []
+    recipe_plan: list[tuple[Recipe, float, int]] = []
+    """(recipe, utilization, allocated)"""
     cross_transfer: dict[str, ItemFlow] = {}
+    """`{[destination]: {[item]: flowRate}}`"""
 
 
 class Plan:
@@ -79,7 +81,7 @@ class Plan:
                 for k, v in item_flow.items():
                     local_net[k] -= v
                     region_net[dest][k] += v
-            for recipe, rate in r.recipe_plan:
+            for recipe, rate, _ in r.recipe_plan:
                 for k, v in recipe.input_flow.items():
                     local_net[k] -= v * rate
                 for k, v in recipe.output_flow.items():

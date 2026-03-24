@@ -2,8 +2,6 @@
 Streamlit interface for Resource Plan Solver
 """
 
-import math
-
 import graphviz  # type: ignore
 import streamlit as st
 from streamlit.components.v1 import html
@@ -207,15 +205,15 @@ def main() -> None:
         with c.expander(
             f"Production using :yellow[**{power_required}**]W", expanded=False
         ):
-            for recipe, utilization in region.recipe_plan:
+            for recipe, utilization, alloc in region.recipe_plan:
                 st.write(
-                    f"{utilization:.2f}/{math.ceil(utilization)} "
+                    f"{utilization:.2f}/{alloc} "
                     + f"**{recipe.facility.name}** "
                     + f"{recipe.inputs} -> {recipe.outputs}"
                 )
         with c.expander("Sell Plan", expanded=True):
-            for k, v in region.sell_plan.items():
-                st.write(f"{v:.2f}/min {k} :green[{config.value[k] * v:.1f}]/min")
+            for k, vf in region.sell_plan.items():
+                st.write(f"{vf:.2f}/min {k} :green[{config.value[k] * vf:.1f}]/min")
 
     with st.spinner("Rendering graph...", show_time=True):
         graph = graphviz.Digraph(engine="dot")
@@ -246,13 +244,13 @@ def main() -> None:
                         item_nodes.add(uid := f"{ri}+{k}")
                         c.edge(uid, cn_sell, f"{v:.2f}")
 
-                for i, recipe_utilization in enumerate(region.recipe_plan):
-                    recipe, utilization = recipe_utilization
+                for i, recipe_stats in enumerate(region.recipe_plan):
+                    recipe, utilization, alloc = recipe_stats
                     if utilization < 1e-10:
                         continue
                     c.node(
                         f"{ri}r{i}",
-                        f"{utilization:.2f} {recipe.facility.name}",
+                        f"{utilization:.2f}/{alloc} {recipe.facility.name}",
                         shape="square",
                         margin="0",
                         width="0.3",

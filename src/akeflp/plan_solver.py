@@ -156,8 +156,12 @@ def solve(config: PlanConstraints) -> Plan:
             RegionPlan(
                 config=region,
                 recipe_plan=[
-                    (recipe, cast(float, lp.value(output)))
-                    for _, output, recipe in regions[region.region_name].oplan
+                    (
+                        recipe,
+                        cast(float, lp.value(output)),
+                        round(cast(float, lp.value(alloc))),
+                    )
+                    for alloc, output, recipe in regions[region.region_name].oplan
                     if lp.value(output)
                 ],
                 sell_plan={
