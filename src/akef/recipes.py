@@ -297,4 +297,13 @@ _recipes.append(
     )
 )
 
+# MARK: pump (water)
+_recipes.append(
+    RecipeData(
+        facility="pump",
+        inputs={},
+        outputs={"clean_water": 1},
+    )
+)
+
 recipes: Final = tuple(_recipes)
