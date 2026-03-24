@@ -232,7 +232,7 @@ def main() -> None:
                 )
 
                 item_nodes: set[str] = set()
-                c.node(cn_sell := f"{ri}sell", "sell", shape="square")
+                c.node(cn_sell := f"{ri}sell", "sell", shape="square", color="green")
                 c.node(cn_fuel := f"{ri}fuel", "thermal_bank", shape="square")
                 for k, v in region.power_plan.items():
                     if v:
@@ -250,8 +250,13 @@ def main() -> None:
                         continue
                     c.node(
                         f"{ri}r{i}",
-                        f"{utilization:.2f}/{alloc} {recipe.facility.name}",
-                        shape="square",
+                        (
+                            f"{utilization:.2f}/{alloc} {recipe.facility.name}"
+                            if utilization + 1e-6 < alloc
+                            else f"{alloc} {recipe.facility.name}"
+                        ),
+                        shape="diamond",
+                        color="red",
                         margin="0",
                         width="0.3",
                         height="0.3",
@@ -265,7 +270,7 @@ def main() -> None:
                         item_nodes.add(f"{ri}+{k}")
                         c.edge(f"{ri}r{i}", f"{ri}+{k}", f"{v * utilization:.2f}")
                 for k in item_nodes:
-                    c.node(k, k.split("+")[1])
+                    c.node(k, k.split("+")[1].replace("_", " ").capitalize())
 
         # st.graphviz_chart(graph, use_container_width=True)
         graph.attr(dpi="300")
