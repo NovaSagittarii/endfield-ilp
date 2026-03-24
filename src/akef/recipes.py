@@ -4,6 +4,10 @@ This wasn't true in 1.0 :c
 
 Anyways, I used python to generate what would've been the yaml to use templates to
 generate some of the items.
+
+Naming convention:
+- items are python-style snake-case (symbols removed, spaces normalized)
+- facilities are referred as their present-tense verb form (easier to type)
 """
 
 from typing import Final, NamedTuple
