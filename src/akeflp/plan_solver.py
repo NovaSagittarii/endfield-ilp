@@ -92,8 +92,6 @@ def solve(config: PlanConstraints) -> Plan:
         for x, ps in pplan:
             net_power += x * ps.power_output  # generate power
             rflow[ps.name] -= x * ps.consumption_rate  # consume for power
-            if ps.name in region.value:
-                objective -= x * ps.consumption_rate * region.value[ps.name]
         for alloc, _, recipe in oplan:
             net_power -= alloc * recipe.facility.power  # cost power
         model += net_power >= region.base_load
