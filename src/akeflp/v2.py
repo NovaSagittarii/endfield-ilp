@@ -247,6 +247,9 @@ def main() -> None:
                             if utilization + 1e-6 < alloc
                             else f"{alloc} {recipe.facility.name}"
                         ),
+                        xlabel="<<FONT COLOR='gray' POINT-SIZE='10'>"
+                        + f"{recipe.duration}s"
+                        + "</FONT>>",
                         shape="diamond",
                         color="red",
                         margin="0",
@@ -257,10 +260,26 @@ def main() -> None:
                     )
                     for k, v in recipe.input_flow.items():
                         item_nodes.add(f"{ri}+{k}")
-                        c.edge(f"{ri}+{k}", f"{ri}r{i}", f"{v * utilization:.2f}")
+                        c.edge(
+                            f"{ri}+{k}",
+                            f"{ri}r{i}",
+                            f"{v * utilization:.2f}",
+                            headlabel=f"{recipe.inputs[k]}",
+                            labelcolor="gray",
+                            labelfontsize="8",
+                            labeldistance="1.5",
+                        )
                     for k, v in recipe.output_flow.items():
                         item_nodes.add(f"{ri}+{k}")
-                        c.edge(f"{ri}r{i}", f"{ri}+{k}", f"{v * utilization:.2f}")
+                        c.edge(
+                            f"{ri}r{i}",
+                            f"{ri}+{k}",
+                            f"{v * utilization:.2f}",
+                            taillabel=f"{recipe.outputs[k]}",
+                            labelcolor="gray",
+                            labelfontsize="8",
+                            labeldistance="1.5",
+                        )
                 for k in item_nodes:
                     c.node(k, k.split("+")[1].replace("_", " ").capitalize())
 
