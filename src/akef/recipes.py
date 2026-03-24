@@ -124,7 +124,7 @@ for item in _refined:
     output = material + "_part"
     _recipes.append(RecipeData(facility="fit", inputs={item: 1}, outputs={output: 1}))
     output = material + "_bottle"
-    _recipes.append(RecipeData(facility="mold", inputs={item: 1}, outputs={output: 1}))
+    _recipes.append(RecipeData(facility="mold", inputs={item: 2}, outputs={output: 1}))
 
 # MARK: plant, seed
 _stdplant = ("buckflower", "citrome", "sandleaf", "aketine")
