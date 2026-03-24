@@ -212,8 +212,12 @@ def main() -> None:
                     + f"{recipe.inputs} -> {recipe.outputs}"
                 )
         with c.expander("Sell Plan", expanded=True):
-            for k, vf in region.sell_plan.items():
-                st.write(f"{vf:.2f}/min {k} :green[{config.value[k] * vf:.1f}]/min")
+            for k, vf in sorted(
+                list(region.sell_plan.items()),
+                key=lambda k: (-config.value[k[0]], k),
+            ):
+                w = config.value[k]
+                st.write(f"{vf:.2f}/min {k} :gray[({w})] :green[{w * vf:.1f}]/min")
 
     with st.spinner("Rendering graph...", show_time=True):
         graph = graphviz.Digraph(engine="dot")
