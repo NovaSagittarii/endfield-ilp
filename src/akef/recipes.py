@@ -79,14 +79,23 @@ for u, v in (
     ("dense_carbon_powder", "stabilized_carbon"),
     ("dense_originium_powder", "dense_origocrust_powder"),
     # omit Valley IV plants to carbon since unused
-    ("jincao", "carbon"),
-    ("yazhen", "carbon"),
 ):
     _recipes.append(
         RecipeData(
             facility="refine",
             inputs={u: 1},
             outputs={v: 1},
+        )
+    )
+for u, v, w in (
+    ("jincao", "carbon", 2),
+    ("yazhen", "carbon", 2),
+):
+    _recipes.append(
+        RecipeData(
+            facility="refine",
+            inputs={u: 1},
+            outputs={v: w},
         )
     )
 _recipes.append(
