@@ -166,6 +166,12 @@ def main() -> None:
     with st.spinner("Running solver, please wait.", show_time=True):
         res = solve(plan_constraints)
 
+    st.caption(
+        "Running at a time means how many thermal banks are currently "
+        "used that as a fuel source. The power plan is tuned to "
+        "minimize resources used to power the base, as those can be used "
+        "to make other items."
+    )
     for region, c in zip(res.regions, st.columns([1 for _ in res.regions])):
         config = region.config
         c.write(f"## {config.region_name}")
@@ -183,16 +189,10 @@ def main() -> None:
             + f" for load of :yellow[**{power_required + config.base_load}**]W ",
             expanded=True,
         ):
-            st.caption(
-                "Running at a time means how many thermal banks are currently "
-                "used that as a fuel source. The power plan is tuned to "
-                "minimize resources used to power the base, as those can be used "
-                "to make other items."
-            )
             for k, v in region.power_plan.items():
                 ps = power_sources[k]
                 st.write(
-                    f"**{k}**: {v} at a time",
+                    f"**{k}**: {v} thermal banks",
                     f"(:red[{v * ps.consumption_rate}]/min),",
                     (
                         f"generating :yellow[**{v * ps.power_output}**]W in total. "
