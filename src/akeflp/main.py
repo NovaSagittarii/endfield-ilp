@@ -160,7 +160,9 @@ def main() -> None:
         ),
     )
 
-    res = solve(plan_constraints)
+    with st.spinner("Running solver, please wait.", show_time=True):
+        res = solve(plan_constraints)
+
     for region, c in zip(res.regions, st.columns([1 for _ in res.regions])):
         config = region.config
         c.write(f"## {config.region_name}")
