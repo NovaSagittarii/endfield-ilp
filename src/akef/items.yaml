@@ -29,10 +29,10 @@ actions:
     power: 20
   mold:
     power: 10
-  # plant:
-  #   power: 20
-  # seed:
-  #   power: 10
+  plant:
+    power: 20
+  seed:
+    power: 10
   gear:
     power: 10
   fill:
@@ -45,10 +45,6 @@ actions:
     power: 50
   skyforge:
     power: 50
-  plantloop:
-    power: 40 # planting unit x1 (20) + seed picking unit x2 (10)
-  plantloop2:
-    power: 30 # planting unit x1 (20) + seed picking unit x1 (10)
   pump:
     power: 10
 items:
@@ -61,17 +57,35 @@ items:
   #   taints: []
   # MARK: NATURAL RESOURCES
   buckflower:
-    plantloop: {}
+    plant:
+      buckflower_seed: 1
+  buckflower_seed:
+    seed:
+      buckflower: 1
+      quantity: 2
   sandleaf:
-    plantloop: {}
+    plant:
+      sandleaf_seed: 1
+  sandleaf_seed:
+    seed:
+      sandleaf: 1
+      quantity: 2
   jincao:
-    plantloop2:
+    plant:
+      jincao_seed: 1
       clean_water: 1
       quantity: 2
+  jincao_seed:
+    seed:
+      jincao: 1
   yazhen:
-    plantloop2:
+    plant:
+      yazhen_seed: 1
       clean_water: 1
       quantity: 2
+  yazhen_seed:
+    seed:
+      yazhen: 1
   clean_water:
     pump:
       seconds: 1

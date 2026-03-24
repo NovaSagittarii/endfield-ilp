@@ -4,34 +4,89 @@ Streamlit interface for Resource Plan Solver
 
 import math
 
+import graphviz  # type: ignore
 import streamlit as st
+from streamlit.components.v1 import html
 
-from akef.items import Item, ResourceCost, items, power_sources, raw_resources
-from akeflp.solver import POWER, TaskDetail, solve
+from akef.recipe_list import _facility_lookup, items, power_sources, raw_resources
+from akeflp.plan import PlanConstraints, RegionPlanConstraints
+from akeflp.plan_solver import solve
 
 
-def render(item: Item, rate: float, depth: int = 0) -> None:
-    instances = math.ceil(rate / item.base_rate)
-    totcost = item.cost * instances
-    rateinfo = (
-        f"{rate/item.output_rate:.3f}x "
-        f'{(f"![icon]({item.icon})" if item.icon else "") * instances}'
-        f"{item.name} @ {rate}/min "
-        f"$\\xleftarrow{{\\text{{costs}}}}$ {totcost} "
-        + (f"[{item.value}]" if item.value else "")
+def region_editor(
+    region_name: str,
+    default_depot_size: int,
+    facility_limit: dict[str, int],
+    default_income: dict[str, int],
+    default_value: dict[str, int],
+) -> RegionPlanConstraints:
+    with st.expander(f"{region_name} Constraints"):
+        depot_size = st.number_input(
+            "Depot Size",
+            key=f"{region_name}_ds",
+            step=1000,
+            min_value=8000,
+            value=default_depot_size,
+        )
+        checkin_interval_days = st.select_slider(
+            "Check-in interval",
+            key=f"{region_name}_ds1",
+            help="How frequently will you sell items? This is used to determine "
+            "what the max output rate of any item should be to prevent waste.",
+            options=[1 / 24, 1 / 12, 0.125, 0.25, 0.5, 1, 2, 3, 4, 5, 6, 7],
+            value=1,
+            format_func=lambda x: (f"{x} day" if x >= 1 else f"{round(x * 24)} hour")
+            + f" ({round(depot_size // (60 * 24 * x))}/min)",
+        )
+        max_rate = round(depot_size // (60 * 24 * checkin_interval_days))
+
+        ci1, ci2 = st.columns((1, 1))
+
+        with st.popover(
+            "Objective function",
+            help="Configure the 'value' of each item here. "
+            "If you set an item to zero, the item won't be created for value. "
+            "If you want a non-sellable item, put how much you think it is worth "
+            "for the optimizer.",
+        ):
+            value = {
+                k: st.number_input(
+                    k, 0, 100, value=default_value.get(k, 0), key=f"{region_name}_{k}"
+                )
+                for k in items
+            }
+
+    return RegionPlanConstraints(
+        region_name=region_name,
+        raw_income={
+            k: ci1.number_input(
+                f"{k.replace('_', ' ').capitalize()}/min",
+                0,
+                value=default_income.get(k, 0),
+                key=f"{region_name}_income_{k}",
+            )
+            for k in raw_resources
+        },
+        base_load=ci2.number_input(
+            "Base load",
+            key=f"{region_name}_bl",
+            help="Total power usage from towers, relay, drills, etc.",
+            step=1,
+            min_value=0,
+            value=1000,
+        ),
+        base_power=ci2.number_input(
+            "PAC Power",
+            key=f"{region_name}_bp",
+            help="Base power supplied by the main PAC. "
+            "You probably don't have to change this.",
+            step=1,
+            min_value=200,
+        ),
+        max_net_output=max_rate,
+        value=value,
+        facility_limit=facility_limit,
     )
-
-    left, right = st.columns([2, 20])
-    if item.icon:
-        left.image(item.icon, width=36)
-    with right.expander(rateinfo):
-        if item.inputs:
-            st.write(f"to {item.action} costs {item.action_overhead}")
-            for amt, pitem in item.inputs:
-                recipe_rate = rate / item.output
-                render(pitem, amt * recipe_rate, depth + 1)
-        else:
-            st.caption("This is a raw resource.")
 
 
 def main() -> None:
@@ -47,143 +102,210 @@ def main() -> None:
         "maximizing the amount Stock Bill you can get, assuming you were able "
         "to sell everything (unlikely to be true)."
     )
-    st.write(
-        "If you scroll to the bottom, you can see how power and ore upkeep of "
-        "each facility is calculated."
-    )
     st.write("# Optimize")
-    depot_size = st.number_input("Depot Size", step=1000, min_value=8000)
-    checkin_interval_days = st.select_slider(
-        "Check-in interval",
-        help="How frequently will you sell items? This is used to determine "
-        "what the max output rate of any item should be to prevent waste.",
-        options=[1 / 24, 1 / 12, 0.125, 0.25, 0.5, 1, 2, 3, 4, 5, 6, 7],
-        value=1,
-        format_func=lambda x: (f"{x} day" if x >= 1 else f"{round(x * 24)} hour")
-        + f" ({round(depot_size // (60 * 24 * x))}/min)",
-    )
-    max_rate = round(depot_size // (60 * 24 * checkin_interval_days))
-    st.write(f"Max output rate (to fill depot in 24 hours): :blue[**{max_rate}**]/min")
-    c1, c2 = st.columns((1.1, 2))
-    ci1, ci2 = c1.columns((1, 1))
-    allow_wuling = ci2.selectbox("Planet", ["Valley IV", "Wuling"]) == "Wuling"
-    constraints = ResourceCost.from_dict(
-        {
-            "originium_ore": ci1.number_input("Originium ore/min", step=1, min_value=0),
-            "amethyst_ore": ci1.number_input("Amethyst ore/min", step=1, min_value=0),
-            "ferrium_ore": ci1.number_input("Ferrium ore/min", step=1, min_value=0),
-            "forge_of_the_sky": (
-                ci1.number_input(
-                    "Forges of the Sky",
-                    step=1,
-                    min_value=0,
-                    max_value=4,
-                    value=2,
-                )
-                if allow_wuling
-                else 0
-            )
-            * 30,
-            "power": ci2.number_input(
-                "PAC Power",
-                help="Base power supplied by the main PAC. "
-                "You probably don't have to change this.",
-                step=1,
-                min_value=200,
-            )
-            - (
-                baseline := ci2.number_input(
-                    "Base load",
-                    help="Total power usage from towers, relay, drills, etc.",
-                    step=1,
-                    min_value=0,
-                    value=200,
-                )
+    plan_constraints = PlanConstraints(
+        regions=[
+            region_editor(
+                "Valley IV",
+                facility_limit={"skyforge": 0, "pump": 0},
+                default_depot_size=80000,
+                default_income={
+                    "originium_ore": 560,
+                    "amethyst_ore": 240,
+                    "ferrium_ore": 1080,
+                },
+                default_value={
+                    "hc_valley_battery": 70,
+                    "sc_valley_battery": 30,
+                    "lc_valley_battery": 16,
+                    "buck_capsule_a": 70,
+                    "canned_citrome_a": 70,
+                    "canned_citrome_b": 27,
+                    "buck_capsule_b": 27,
+                    "canned_citrome_c": 10,
+                    "buck_capsule_c": 10,
+                    "amethyst_bottle": 2,
+                    "origocrust": 1,
+                    "amethyst_part": 1,
+                    "ferrium_part": 1,
+                    "steel_part": 3,
+                },
             ),
-        }
+            region_editor(
+                "Wuling",
+                facility_limit={
+                    "skyforge": st.number_input(
+                        "wuling skyforges", min_value=0, value=3
+                    )
+                },
+                default_depot_size=58000,
+                default_income={
+                    "originium_ore": 480,
+                    "ferrium_ore": 90,
+                    "cuprium_ore": 120,
+                },
+                default_value={
+                    "cuprium_part": 1,
+                    "yazhen_syringe_a": 22,
+                    "sc_wuling_battery": 54,
+                    "lc_wuling_battery": 25,
+                    "jincao_drink": 16,
+                    "yazhen_syringe_c": 16,
+                    "xiranite": 1,
+                },
+            ),
+        ],
+        max_cross_transfer_rate=st.number_input(
+            "manual transfer rate",
+            help="How much you manually transfer via Dijiang. This is tedious.",
+            min_value=0,
+        ),
     )
-    with c1.popover(
-        "Objective function",
-        help="Configure the 'value' of each item here. "
-        "If you set an item to zero, the item won't be created for value. "
-        "If you want a non-sellable item, put how much you think it is worth "
-        "for the optimizer.",
-    ):
 
-        def quantity_of_item(x: Item) -> TaskDetail:
-            left, right = st.columns([3, 20])
-            if x.icon:
-                left.write("")
-                left.write("")
-                left.image(x.icon)
-            return TaskDetail(
-                value=right.number_input(
-                    f"![]({x.icon}) {x.name}", step=1, value=x.value
-                ),
-                lower_bound=0,
-                upper_bound=10000,
-            )
+    # if not st.button("Solve (takes a while)"):
+    #     return
 
-        vals = {
-            k: quantity_of_item(v)
-            for k, v in sorted(items.items(), key=lambda x: x[1].name)
-            if k not in raw_resources
-        }
-    try:
-        res = solve(
-            constraints=constraints,
-            tasks=vals,
-            max_rate=max_rate,
-            disallowed_taints=[] if allow_wuling else ["wuling"],
-        )
-        c2.write(f"### Value rate: :green[**{res.value_rate}**]/min")
-        with c2.expander(
-            f"### Power :yellow[**{res.power_total + baseline}**]W "
-            + f" for load of :yellow[**{res.power_required + baseline}**]W "
-            + f"({res.power_required}req + {baseline}base)",
+    with st.spinner("Running solver, please wait.", show_time=True):
+        res = solve(plan_constraints)
+
+    st.caption(
+        "Running at a time means how many thermal banks are currently "
+        "used that as a fuel source. The power plan is tuned to "
+        "minimize resources used to power the base, as those can be used "
+        "to make other items."
+    )
+    for region, c in zip(res.regions, st.columns([1 for _ in res.regions])):
+        config = region.config
+        c.write(f"## {config.region_name}")
+        c.write(f"### Value rate: :green[**{region.profit:.2f}**]/min")
+
+        power_generated = 0
+        power_required = 0
+        for k, v in region.power_plan.items():
+            power_generated += power_sources[k].power_output * v
+        for k, v in region.facility_plan.items():
+            power_required += _facility_lookup[k].power * v
+
+        with c.expander(
+            f"Power :yellow[**{power_generated + config.base_power}**]W "
+            + f" for load of :yellow[**{power_required + config.base_load}**]W ",
             expanded=True,
         ):
-            st.caption(
-                "Running at a time means how many thermal banks are currently "
-                "used that as a fuel source. The power plan is tuned to "
-                "minimize resources used to power the base, as those can be used "
-                "to make other items."
-            )
-            for k, vp in res.power.items():
+            for k, v in region.power_plan.items():
+                ps = power_sources[k]
                 st.write(
-                    f"**{k}**: {vp.x} at a time",
-                    f"(:red[{vp.x * power_sources[k].consumption_rate}]/min),",
+                    f"**{k}**: {v} thermal banks",
+                    f"(:red[{v * ps.consumption_rate}]/min),",
                     (
-                        f"generating :yellow[**{vp.power}**]W in total. "
-                        + f"Opportunity cost of :red[**{vp.opportunity_cost}**] "
-                        + "val/min."
-                        if vp.x
+                        f"generating :yellow[**{v * ps.power_output}**]W in total. "
+                        # + f"Opportunity cost of :red[**{vp.opportunity_cost}**] "
+                        # + "val/min."
+                        if v
                         else ""
                     ),
                 )
-        with st.expander("### Produce these items"):
-            for k, vt in res.produce.items():
-                item = items[k]
+        with c.expander(
+            f"Production using :yellow[**{power_required}**]W", expanded=False
+        ):
+            for recipe, utilization in region.recipe_plan:
                 st.write(
-                    f"**{k}** @ {vt.x * item.output_rate}/min",
-                    f"generating :green[**{vt.rate}**] value/min",
+                    f"{utilization:.2f}/{math.ceil(utilization)} "
+                    + f"**{recipe.facility.name}** "
+                    + f"{recipe.inputs} -> {recipe.outputs}"
                 )
-                render(item, vt.x * item.output_rate)
-    except TypeError:
-        c2.error("No solution found?? :/ (it should say something...)")
+        with c.expander("Sell Plan", expanded=True):
+            for k, v in region.sell_plan.items():
+                st.write(f"{v:.2f}/min {k} :green[{config.value[k] * v:.1f}]/min")
 
-    st.write("# Resources")
-    items_display = list(items.values())
-    match st.selectbox("Sort by", ["Alphabetical", "Power (dec)", "Value (dec)"]):
-        case "Default":
-            pass
-        case "Power (dec)":
-            items_display.sort(key=lambda x: x.cost.val[POWER], reverse=True)
-        case "Value (dec)":
-            items_display.sort(key=lambda x: x.value, reverse=True)
-        case "Alphabetical":
-            items_display.sort(key=lambda x: x.name)
-    for item in items_display:
-        if item.name in raw_resources:
-            continue
-        render(item, item.base_rate * item.output)
+    with st.spinner("Rendering graph...", show_time=True):
+        graph = graphviz.Digraph(engine="dot")
+        # graph.attr(overlap="false")
+        graph.attr(splines="true")
+        # graph.attr(sep="0.1")
+        # graph.attr(pack="true")
+        for ri, region in enumerate(res.regions):
+            config = region.config
+            with graph.subgraph(name=f"cluster_{ri}") as c:
+                c.attr(
+                    style="rounded",
+                    color="blue",
+                    label=config.region_name,
+                    fontsize="16",
+                )
+
+                item_nodes: set[str] = set()
+                c.node(cn_sell := f"{ri}sell", "sell", shape="square")
+                c.node(cn_fuel := f"{ri}fuel", "thermal_bank", shape="square")
+                for k, v in region.power_plan.items():
+                    if v:
+                        vf = v * power_sources[k].consumption_rate
+                        item_nodes.add(uid := f"{ri}+{k}")
+                        c.edge(uid, cn_fuel, f"{vf:.2f}")
+                for k, v in region.sell_plan.items():
+                    if v:
+                        item_nodes.add(uid := f"{ri}+{k}")
+                        c.edge(uid, cn_sell, f"{v:.2f}")
+
+                for i, recipe_utilization in enumerate(region.recipe_plan):
+                    recipe, utilization = recipe_utilization
+                    if utilization < 1e-10:
+                        continue
+                    c.node(
+                        f"{ri}r{i}",
+                        f"{utilization:.2f} {recipe.facility.name}",
+                        shape="square",
+                        margin="0",
+                        width="0.3",
+                        height="0.3",
+                        # fontsize="10",
+                        fixedsize="true",
+                    )
+                    for k, v in recipe.input_flow.items():
+                        item_nodes.add(f"{ri}+{k}")
+                        c.edge(f"{ri}+{k}", f"{ri}r{i}", f"{v * utilization:.2f}")
+                    for k, v in recipe.output_flow.items():
+                        item_nodes.add(f"{ri}+{k}")
+                        c.edge(f"{ri}r{i}", f"{ri}+{k}", f"{v * utilization:.2f}")
+                for k in item_nodes:
+                    c.node(k, k.split("+")[1])
+
+        # st.graphviz_chart(graph, use_container_width=True)
+        graph.attr(dpi="300")
+        src = graphviz.Source(graph.source)
+        st.image(src.pipe(format="webp"))
+
+        import re
+
+        svg = src.pipe(format="svg").decode()
+        svg = re.sub(r'width="[\d\.]+pt"', "", svg)
+        svg = re.sub(r'height="[\d\.]+pt"', "", svg)
+        svg = re.sub(
+            r"<svg([^>]*)>",
+            r'<svg\1 style="width:100%; height:100%; display:block;">',
+            svg,
+        )
+
+        html_code = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <script
+            src="https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.6.1/dist/svg-pan-zoom.min.js"
+            >
+            </script>
+        </head>
+        <body style="width:100%; height:100vh; margin:0;">
+            {svg}
+            <script>
+            svgPanZoom('svg', {{
+                zoomEnabled: true,
+                controlIconsEnabled: true,
+                fit: true,
+                center: true,
+                minZoom: 0.001,
+            }});
+            </script>
+        </body>
+        </html>
+        """
+        html(html_code, height=800)

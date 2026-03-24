@@ -4,7 +4,8 @@ from typing import Final
 
 
 class PowerSource:
-    def __init__(self, duration_seconds: int, power_output: int) -> None:
+    def __init__(self, name: str, duration_seconds: int, power_output: int) -> None:
+        self.name: Final = name
         self.duration_seconds: Final = duration_seconds
         self.power_output: Final = power_output
         self.consumption_rate: Final = 60 / duration_seconds
@@ -13,4 +14,4 @@ class PowerSource:
 
     @classmethod
     def from_dict(cls, d: dict) -> PowerSource:
-        return PowerSource(duration_seconds=d["seconds"], power_output=d["power"])
+        return PowerSource("", duration_seconds=d["seconds"], power_output=d["power"])

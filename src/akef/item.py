@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import math
-from typing import Final, Sequence, Tuple, TypeAlias
+from typing import Final, MutableSequence, Sequence, Tuple, TypeAlias
 
 from akef.resource import ResourceCost
 
@@ -14,7 +14,7 @@ class Item:
         name: str,
         seconds_to_craft: int,
         overhead: ResourceCost,
-        inputs: Sequence[Tuple[int, Item]],
+        inputs: MutableSequence[Tuple[int, Item]],
         action: str,
         output: int = 1,
         value: int = 1,
@@ -22,6 +22,7 @@ class Item:
         icon: str | None = None,
     ) -> None:
         self.name: Final = name
+        self.seconds_to_craft: Final = seconds_to_craft
         self.base_rate: Final = 60 / seconds_to_craft
         """how many completions per minute"""
 
@@ -33,8 +34,16 @@ class Item:
             ],
             overhead,
         )
+        """
+        NOTE: this value is correct since inputs can have loops, so currently,
+            it is not being calculated.
+        """
+
         self.output: Final = output
-        self.inputs: Final = inputs
+        self.inputs: Final[Sequence[Tuple[int, Item]]] = inputs
+        self.inputs_: Final[MutableSequence[Tuple[int, Item]]] = (
+            inputs  # the one you can edit (usually you shouldn't though)
+        )
         self.action: Final = action
         self.action_overhead: Final = overhead
         self.value: Final = value
