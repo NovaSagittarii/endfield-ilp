@@ -112,10 +112,9 @@ for item, amt in {
     "jincao": 2,
     "yazhen": 2,
 }.items():
-    input = item.split("_")[0]
-    output = input + "_powder"
+    output = item.split("_")[0] + "_powder"
     _recipes.append(
-        RecipeData(facility="shred", inputs={input: 1}, outputs={output: amt})
+        RecipeData(facility="shred", inputs={item: 1}, outputs={output: amt})
     )
 
 # MARK: fit, mold
