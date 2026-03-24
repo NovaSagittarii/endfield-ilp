@@ -98,34 +98,34 @@ _recipes.append(
 )
 
 # MARK: shred
-for item in (
-    "cuprium",
-    "ferrium",
-    "amethyst_fiber",
-    "originium_ore",
-    "carbon",
-    "origocrust",
-    "buckflower",
-    "citrome",
-    "sandleaf",
-    "aketine",
-    "jincao",
-    "yazhen",
-):
+for item, amt in {
+    "cuprium": 1,
+    "ferrium": 1,
+    "amethyst_fiber": 1,
+    "originium_ore": 1,
+    "carbon": 2,
+    "origocrust": 1,
+    "buckflower": 2,
+    "citrome": 2,
+    "sandleaf": 3,
+    "aketine": 2,
+    "jincao": 2,
+    "yazhen": 2,
+}.items():
     input = item.split("_")[0]
     output = input + "_powder"
     _recipes.append(
-        RecipeData(facility="shred", inputs={input: 1}, outputs={output: 1})
+        RecipeData(facility="shred", inputs={input: 1}, outputs={output: amt})
     )
 
 # MARK: fit, mold
 _refined = ("ferrium", "amethyst_fiber", "steel", "cryston_fiber", "cuprium")
 for item in _refined:
-    input = item.split("_")[0]
-    output = input + "_part"
-    _recipes.append(RecipeData(facility="fit", inputs={input: 1}, outputs={output: 1}))
-    output = input + "_bottle"
-    _recipes.append(RecipeData(facility="mold", inputs={input: 1}, outputs={output: 1}))
+    material = item.split("_")[0]
+    output = material + "_part"
+    _recipes.append(RecipeData(facility="fit", inputs={item: 1}, outputs={output: 1}))
+    output = material + "_bottle"
+    _recipes.append(RecipeData(facility="mold", inputs={item: 1}, outputs={output: 1}))
 
 # MARK: plant, seed
 _stdplant = ("buckflower", "citrome", "sandleaf", "aketine")
