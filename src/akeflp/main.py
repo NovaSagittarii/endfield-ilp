@@ -4,7 +4,9 @@ Streamlit interface for Resource Plan Solver
 
 import math
 
+import graphviz  # type: ignore
 import streamlit as st
+from streamlit.components.v1 import html
 
 from akef.recipe_list import _facility_lookup, items, power_sources, raw_resources
 from akeflp.plan import PlanConstraints, RegionPlanConstraints
@@ -214,3 +216,96 @@ def main() -> None:
         with c.expander("Sell Plan", expanded=True):
             for k, v in region.sell_plan.items():
                 st.write(f"{v:.2f}/min {k} :green[{config.value[k] * v:.1f}]/min")
+
+    with st.spinner("Rendering graph...", show_time=True):
+        graph = graphviz.Digraph(engine="dot")
+        # graph.attr(overlap="false")
+        graph.attr(splines="true")
+        # graph.attr(sep="0.1")
+        # graph.attr(pack="true")
+        for ri, region in enumerate(res.regions):
+            config = region.config
+            with graph.subgraph(name=f"cluster_{ri}") as c:
+                c.attr(
+                    style="rounded",
+                    color="blue",
+                    label=config.region_name,
+                    fontsize="16",
+                )
+
+                item_nodes: set[str] = set()
+                c.node(cn_sell := f"{ri}sell", "sell", shape="square")
+                c.node(cn_fuel := f"{ri}fuel", "thermal_bank", shape="square")
+                for k, v in region.power_plan.items():
+                    if v:
+                        vf = v * power_sources[k].consumption_rate
+                        item_nodes.add(uid := f"{ri}+{k}")
+                        c.edge(uid, cn_fuel, f"{vf:.2f}")
+                for k, v in region.sell_plan.items():
+                    if v:
+                        item_nodes.add(uid := f"{ri}+{k}")
+                        c.edge(uid, cn_sell, f"{v:.2f}")
+
+                for i, recipe_utilization in enumerate(region.recipe_plan):
+                    recipe, utilization = recipe_utilization
+                    if utilization < 1e-10:
+                        continue
+                    c.node(
+                        f"{ri}r{i}",
+                        f"{utilization:.2f} {recipe.facility.name}",
+                        shape="square",
+                        margin="0",
+                        width="0.3",
+                        height="0.3",
+                        # fontsize="10",
+                        fixedsize="true",
+                    )
+                    for k, v in recipe.input_flow.items():
+                        item_nodes.add(f"{ri}+{k}")
+                        c.edge(f"{ri}+{k}", f"{ri}r{i}", f"{v * utilization:.2f}")
+                    for k, v in recipe.output_flow.items():
+                        item_nodes.add(f"{ri}+{k}")
+                        c.edge(f"{ri}r{i}", f"{ri}+{k}", f"{v * utilization:.2f}")
+                for k in item_nodes:
+                    c.node(k, k.split("+")[1])
+
+        # st.graphviz_chart(graph, use_container_width=True)
+        graph.attr(dpi="300")
+        src = graphviz.Source(graph.source)
+        st.image(src.pipe(format="webp"))
+
+        import re
+
+        svg = src.pipe(format="svg").decode()
+        svg = re.sub(r'width="[\d\.]+pt"', "", svg)
+        svg = re.sub(r'height="[\d\.]+pt"', "", svg)
+        svg = re.sub(
+            r"<svg([^>]*)>",
+            r'<svg\1 style="width:100%; height:100%; display:block;">',
+            svg,
+        )
+
+        html_code = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <script
+            src="https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.6.1/dist/svg-pan-zoom.min.js"
+            >
+            </script>
+        </head>
+        <body style="width:100%; height:100vh; margin:0;">
+            {svg}
+            <script>
+            svgPanZoom('svg', {{
+                zoomEnabled: true,
+                controlIconsEnabled: true,
+                fit: true,
+                center: true,
+                minZoom: 0.001,
+            }});
+            </script>
+        </body>
+        </html>
+        """
+        html(html_code, height=800)
