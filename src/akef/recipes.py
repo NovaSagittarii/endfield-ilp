@@ -179,7 +179,7 @@ for item, inp in _comps.items():
 # MARK: fill
 for item, out in (
     ("citrome", "canned_citrome_"),
-    ("buckflower", "buckflower_capsule_"),
+    ("buckflower", "buck_capsule_"),
 ):
     _recipes.extend(
         (
