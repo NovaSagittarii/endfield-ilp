@@ -302,6 +302,7 @@ _recipes.append(
         facility="pump",
         inputs={},
         outputs={"clean_water": 1},
+        seconds=1,
     )
 )
 
