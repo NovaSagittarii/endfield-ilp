@@ -221,8 +221,8 @@ _packings = {
     "hc_valley_battery": (("steel_part", 5), ("dense_originium_powder", 15)),
     "yazhen_syringe_c": (("ferrium_part", 10), ("ferrium_bottle_yazhen_solution", 5)),
     "yazhen_syringe_a": (("cuprium_part", 10), ("cuprium_bottle_yazhen_solution", 5)),
-    "jincao_syringe_c": (("ferrium_part", 10), ("ferrium_bottle_jincao_solution", 5)),
-    "jincao_syringe_a": (("cuprium_part", 10), ("cuprium_bottle_jincao_solution", 5)),
+    "jincao_drink": (("ferrium_part", 10), ("ferrium_bottle_jincao_solution", 5)),
+    "jincao_tea": (("cuprium_part", 10), ("cuprium_bottle_jincao_solution", 5)),
     "lc_wuling_battery": (("xiranite", 5), ("dense_originium_powder", 15)),
     "sc_wuling_battery": (("xircon", 5), ("dense_originium_powder", 20)),
 }
