@@ -113,9 +113,11 @@ def solve(config: PlanConstraints) -> Plan:
             )
             model += allocs <= facility_max
 
-    for rvars in regions.values():
+    for region in config.regions:
+        rvars = regions[region.region_name]
         for x in rvars.flow.values():
             model += x >= 0  # no negative net flow allowed
+            model += x <= region.max_net_output
         for liq in treatable_liquids:
             model += rvars.flow[liq] == 0  # no excess allowed (cannot discharge)
 
@@ -172,6 +174,7 @@ if __name__ == "__main__":
                 base_power=1000,
                 base_load=0,
                 # facility_limit={"refine": 10},
+                # max_net_output=10
             )
         ],
         max_cross_transfer_rate=0,

@@ -32,6 +32,12 @@ class RegionPlanConstraints(NamedTuple):
     use case: xiranite skyforge limit
     """
 
+    max_net_output: float = 1e4
+    """
+    maximum net output (selling rate) for any item.
+    you probably do not want check in every hour to sell parts.
+    """
+
 
 class PlanConstraints(NamedTuple):
     regions: list[RegionPlanConstraints]
