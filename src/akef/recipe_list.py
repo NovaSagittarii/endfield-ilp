@@ -19,7 +19,7 @@ power_sources: Final[dict[str, PowerSource]] = {
 }
 """all power sources"""
 
-raw_resources: Final[list[str]] = list(set(_raw_resources))
+raw_resources: Final[list[str]] = list(_raw_resources)
 """all raw resources, i.e. come from a ore vein"""
 
 _items: list[str] = []
