@@ -220,8 +220,8 @@ for item in ("ferrium", "cuprium"):
 _packings = {
     "industrial_explosive": (("amethyst_part", 5), ("aketine_powder", 1)),
     "lc_valley_battery": (("amethyst_part", 5), ("originium_powder", 10)),
-    "sc_valley_battery": (("ferrium_part", 5), ("originium_powder", 15)),
-    "hc_valley_battery": (("steel_part", 5), ("dense_originium_powder", 15)),
+    "sc_valley_battery": (("ferrium_part", 10), ("originium_powder", 15)),
+    "hc_valley_battery": (("steel_part", 10), ("dense_originium_powder", 15)),
     "yazhen_syringe_c": (("ferrium_part", 10), ("ferrium_bottle_yazhen_solution", 5)),
     "yazhen_syringe_a": (("cuprium_part", 10), ("cuprium_bottle_yazhen_solution", 5)),
     "jincao_drink": (("ferrium_part", 10), ("ferrium_bottle_jincao_solution", 5)),
