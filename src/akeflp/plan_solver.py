@@ -131,7 +131,9 @@ def solve(config: PlanConstraints) -> Plan:
     model += objective
     # print(model)
 
-    solver = lp.apis.HiGHS()
+    solver = lp.apis.GUROBI()  # maybe model is small enough?
+    if not solver.available():
+        solver = lp.apis.HiGHS()  # fallback
     model.solve(solver)
 
     # print("[!] variables:")

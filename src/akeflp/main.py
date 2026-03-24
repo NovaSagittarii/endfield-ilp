@@ -160,8 +160,8 @@ def main() -> None:
         ),
     )
 
-    if not st.button("Solve (takes a while)"):
-        return
+    # if not st.button("Solve (takes a while)"):
+    #     return
 
     with st.spinner("Running solver, please wait.", show_time=True):
         res = solve(plan_constraints)
