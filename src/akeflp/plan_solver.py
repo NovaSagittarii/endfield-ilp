@@ -187,9 +187,16 @@ if __name__ == "__main__":
                 base_load=0,
                 # facility_limit={"refine": 10},
                 # max_net_output=10
-            )
+            ),
+            # RegionPlanConstraints(
+            #     region_name="make_battery",
+            #     raw_income={"originium_ore": 1000, "ferrium_ore": 1000},
+            #     value={"hc_valley_battery": 100, "originium_powder": 1},
+            #     base_load=0,
+            # ),
         ],
         max_cross_transfer_rate=0,
     )
     out = solve(config)
     print(out.regions, out.valid)
+    print(out.regions[0].sell_plan)
