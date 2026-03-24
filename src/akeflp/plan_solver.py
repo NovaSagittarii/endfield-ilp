@@ -13,6 +13,7 @@ from akef.recipe_list import (
     power_sources,
     recipes,
 )
+from akef.recipes import treatable_liquids
 from akeflp.plan import Plan, PlanConstraints, RegionPlan, RegionPlanConstraints
 
 
@@ -115,6 +116,9 @@ def solve(config: PlanConstraints) -> Plan:
     for rvars in regions.values():
         for x in rvars.flow.values():
             model += x >= 0  # no negative net flow allowed
+        for liq in treatable_liquids:
+            model += rvars.flow[liq] == 0  # no excess allowed (cannot discharge)
+
     model += objective
     # print(model)
 

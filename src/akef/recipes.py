@@ -150,7 +150,8 @@ for item in _liqplant:
     )
 
 # MARK: treatment
-for liq in ("sewage", "xircon_effluent", "inert_xircon_effluent"):
+treatable_liquids = ("sewage", "xircon_effluent", "inert_xircon_effluent")
+for liq in treatable_liquids:
     _recipes.append(RecipeData(facility="treatment", inputs={liq: 1}, outputs={}))
 
 # MARK: gear
