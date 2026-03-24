@@ -24,6 +24,8 @@ class RegionVars(NamedTuple):
     """output variables (Xalloc, Xactual_output, recipe)"""
     pplan: list[tuple[lp.LpVariable, PowerSource]]
     """power plan variables (Xusage, power_source)"""
+    objective: lp.LpAffineExpression
+    """per-region objective expression"""
 
 
 def solve(config: PlanConstraints) -> Plan:
@@ -33,6 +35,7 @@ def solve(config: PlanConstraints) -> Plan:
     regions: dict[str, RegionVars] = {}
     for region in config.regions:
         regions[region.region_name] = RegionVars(
+            objective=lp.LpAffineExpression(),
             flow={item: lp.LpAffineExpression() for item in items},
             oplan=[
                 (
@@ -77,6 +80,9 @@ def solve(config: PlanConstraints) -> Plan:
         pplan = regions[region.region_name].pplan
         """power variables (item_usage, power_source)"""
 
+        robj = regions[region.region_name].objective
+        """regional objective expression"""
+
         # setup income
         for k, v in region.raw_income.items():
             rflow[k] += v  # raw income
@@ -101,8 +107,9 @@ def solve(config: PlanConstraints) -> Plan:
                 rflow[k] += v * output  # produce as output
         for item in items:
             if item in region.value:
-                objective += region.value[item] * rflow[item]
+                robj += region.value[item] * rflow[item]
                 # sell off any excess
+        objective += robj
 
         # apply facility limits
         for facility_name, facility_max in region.facility_limit.items():
@@ -151,13 +158,18 @@ def solve(config: PlanConstraints) -> Plan:
                     for _, output, recipe in regions[region.region_name].oplan
                     if lp.value(output)
                 ],
+                sell_plan={
+                    k: cast(float, lp.value(x))
+                    for k, x in regions[region.region_name].flow.items()
+                    if region.value[k] and cast(float, lp.value(x)) > 1e-10
+                },
                 facility_plan=facility_plan[region.region_name],
                 power_plan={
                     ps.name: round(cast(float, lp.value(x)))
                     for x, ps in regions[region.region_name].pplan
                     if lp.value(x)
                 },
-                profit=cast(float, lp.value(objective)),
+                profit=cast(float, lp.value(regions[region.region_name].objective)),
             )
             for region in config.regions
         ]
