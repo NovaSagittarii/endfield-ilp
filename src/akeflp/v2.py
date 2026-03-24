@@ -208,9 +208,9 @@ def main() -> None:
                 st.write(f"{vf:.2f}/min {k} :gray[({w})] :green[{w * vf:.1f}]/min")
 
     with st.spinner("Rendering graph...", show_time=True):
-        graph = graphviz.Digraph(engine="dot")
+        graph = graphviz.Digraph(engine="patchwork")
         # graph.attr(overlap="false")
-        graph.attr(splines="true")
+        # graph.attr(splines="true")
         # graph.attr(sep="0.1")
         # graph.attr(pack="true")
         for ri, region in enumerate(res.regions):
@@ -286,11 +286,11 @@ def main() -> None:
         # st.graphviz_chart(graph, use_container_width=True)
         graph.attr(dpi="300")
         src = graphviz.Source(graph.source)
-        st.image(src.pipe(format="webp"))
+        st.image(src.pipe(format="webp", quiet=True))
 
         import re
 
-        svg = src.pipe(format="svg").decode()
+        svg = src.pipe(format="svg", quiet=True).decode()
         svg = re.sub(r'width="[\d\.]+pt"', "", svg)
         svg = re.sub(r'height="[\d\.]+pt"', "", svg)
         svg = re.sub(
