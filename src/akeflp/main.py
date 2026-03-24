@@ -71,7 +71,7 @@ def region_editor(
             help="Total power usage from towers, relay, drills, etc.",
             step=1,
             min_value=0,
-            value=200,
+            value=1000,
         ),
         base_power=ci2.number_input(
             "PAC Power",
@@ -159,6 +159,9 @@ def main() -> None:
             min_value=0,
         ),
     )
+
+    if not st.button("Solve (takes a while)"):
+        return
 
     with st.spinner("Running solver, please wait.", show_time=True):
         res = solve(plan_constraints)
