@@ -39,14 +39,14 @@ def solve(config: PlanConstraints) -> Plan:
                         f"{region.region_name}_alloc_{i:03}",
                         lowBound=0,
                         upBound=None,
-                        cat=lp.LpContinuous,
+                        cat=lp.LpInteger,  # how many facilities? (full power cost)
                     ),
                     lp.LpVariable(
                         f"{region.region_name}_output_{i:03}_"
                         + "+".join(recipe.outputs.keys()),  # for debug
                         lowBound=0,
                         upBound=None,
-                        cat=lp.LpContinuous,
+                        cat=lp.LpContinuous,  # utilization of the facilities
                     ),
                     recipe,
                 )
@@ -103,6 +103,15 @@ def solve(config: PlanConstraints) -> Plan:
                 objective += region.value[item] * rflow[item]
                 # sell off any excess
 
+        # apply facility limits
+        for facility_name, facility_max in region.facility_limit.items():
+            allocs = sum(
+                alloc
+                for alloc, _, recipe in oplan
+                if recipe.facility.name == facility_name
+            )
+            model += allocs <= facility_max
+
     for rvars in regions.values():
         for x in rvars.flow.values():
             model += x >= 0  # no negative net flow allowed
@@ -111,6 +120,12 @@ def solve(config: PlanConstraints) -> Plan:
 
     solver = lp.apis.HiGHS()
     model.solve(solver)
+
+    # print("[!] variables:")
+    # for v in model.variables():
+    #     if v.varValue:
+    #         print(f"    - {v.name} = {v.varValue}")
+    # print(f"[!] objective= {model.objective.value()}")
 
     facility_plan: dict[str, dict[str, int]] = {k: {} for k in regions.keys()}
     for region_name, region_plan in regions.items():
@@ -126,9 +141,9 @@ def solve(config: PlanConstraints) -> Plan:
             RegionPlan(
                 config=region,
                 recipe_plan=[
-                    (recipe, cast(float, lp.value(alloc)))
-                    for alloc, _, recipe in regions[region.region_name].oplan
-                    if lp.value(alloc)
+                    (recipe, cast(float, lp.value(output)))
+                    for _, output, recipe in regions[region.region_name].oplan
+                    if lp.value(output)
                 ],
                 facility_plan=facility_plan[region.region_name],
                 power_plan={
@@ -152,6 +167,7 @@ if __name__ == "__main__":
                 value={"origocrust": 10},
                 base_power=1000,
                 base_load=0,
+                # facility_limit={"refine": 10},
             )
         ],
         max_cross_transfer_rate=0,
