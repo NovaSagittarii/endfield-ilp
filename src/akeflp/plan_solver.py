@@ -161,7 +161,7 @@ def solve(config: PlanConstraints) -> Plan:
                 sell_plan={
                     k: cast(float, lp.value(x))
                     for k, x in regions[region.region_name].flow.items()
-                    if region.value[k] and cast(float, lp.value(x)) > 1e-10
+                    if region.value.get(k) and cast(float, lp.value(x)) > 1e-10
                 },
                 facility_plan=facility_plan[region.region_name],
                 power_plan={
