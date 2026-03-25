@@ -321,7 +321,8 @@ def main() -> None:
 
         import re
 
-        svg = src.pipe(format="svg", quiet=True).decode()
+        svg_bytes = src.pipe(format="svg", quiet=True)
+        svg = svg_bytes.decode()
         svg = re.sub(r'width="[\d\.]+pt"', "", svg)
         svg = re.sub(r'height="[\d\.]+pt"', "", svg)
         svg = re.sub(
@@ -354,3 +355,10 @@ def main() -> None:
         </html>
         """
         html(html_code, height=800)
+
+        st.download_button(
+            label="Download SVG",
+            data=svg_bytes,
+            file_name="flows.svg",
+            mime="image/svg+xml",
+        )
