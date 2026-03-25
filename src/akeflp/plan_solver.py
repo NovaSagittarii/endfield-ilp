@@ -99,6 +99,7 @@ def solve(config: PlanConstraints) -> Plan:
         # recipe effects on item net flow
         for alloc, output, recipe in oplan:
             model += output <= alloc  # allocation constraint
+            # model += output + 1 >= alloc  # power requirements should constrain this
             for k, v in recipe.input_flow.items():
                 rflow[k] -= v * output  # consume as input
             for k, v in recipe.output_flow.items():
