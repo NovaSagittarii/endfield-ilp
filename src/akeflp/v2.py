@@ -248,6 +248,16 @@ def main() -> None:
                     shape="Msquare",
                     color="brown",
                 )
+                c.node(
+                    f"{ri}ores",
+                    "Drills",
+                    shape="Mdiamond",
+                    color="red",
+                    margin="0",
+                    width="0.3",
+                    height="0.3",
+                    fixedsize="true",
+                )
                 for k, v in region.power_plan.items():
                     if v:
                         vf = v * power_sources[k].consumption_rate
@@ -303,7 +313,14 @@ def main() -> None:
                             labeldistance="1.5",
                         )
                 for k in item_nodes:
-                    c.node(k, k.split("+")[1].replace("_", " ").capitalize())
+                    item = k.split("+")[1]
+                    c.node(
+                        k,
+                        item.replace("_", " ").capitalize(),
+                        color="black" if item not in raw_resources else "orange",
+                    )
+                    if item in raw_resources:
+                        c.edge(f"{ri}ores", k, color="orange")
 
         for ri, region in enumerate(res.regions):
             for dest, flows in region.cross_transfer.items():
