@@ -121,7 +121,7 @@ def main() -> None:
                 "Wuling",
                 facility_limit={
                     "skyforge": st.number_input(
-                        "wuling skyforges", min_value=0, value=3
+                        "wuling skyforges", min_value=0, value=4
                     )
                 },
                 default_depot_size=58000,
