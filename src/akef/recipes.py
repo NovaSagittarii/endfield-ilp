@@ -78,7 +78,8 @@ for u, v in (
     ("cryston_powder", "cryston_fiber"),
     ("dense_carbon_powder", "stabilized_carbon"),
     ("dense_originium_powder", "dense_origocrust_powder"),
-    # omit Valley IV plants to carbon since unused
+    # omit Valley IV plants to carbon since unused in Valley IV recipes
+    # ("sandleaf", "carbon"),
 ):
     _recipes.append(
         RecipeData(
