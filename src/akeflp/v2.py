@@ -2,6 +2,8 @@
 Streamlit interface for Resource Plan Solver
 """
 
+import base64
+
 import graphviz  # type: ignore
 import PIL
 import streamlit as st
@@ -362,3 +364,36 @@ def main() -> None:
             file_name="flows.svg",
             mime="image/svg+xml",
         )
+
+        def open_html_in_new_tab(
+            html_code: str, button_label: str = "View in New Tab"
+        ) -> None:
+            """
+            LLM-generated method to open the svg pan-zoom in a new tab so
+            it is easier to explore.
+            """
+            b64_html = base64.b64encode(html_code.encode()).decode()
+            js_snippet = f"""
+                <script>
+                function openHtml() {{
+                    const htmlContent = atob("{b64_html}");
+                    const blob = new Blob([htmlContent], {{ type: 'text/html' }});
+                    const url = URL.createObjectURL(blob);
+                    window.open(url, '_blank');
+                }}
+                </script>
+                <button onclick="openHtml()" style="
+                    background-color: #00acee;
+                    color: white;
+                    border: none;
+                    padding: 0.5rem 1rem;
+                    border-radius: 0.5rem;
+                    cursor: pointer;
+                    font-family: sans-serif;
+                    font-weight: 500;">
+                    {button_label}
+                </button>
+            """
+            html(js_snippet)
+
+        open_html_in_new_tab(html_code, "View svg in new tab")
