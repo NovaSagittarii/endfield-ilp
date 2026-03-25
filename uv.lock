@@ -361,6 +361,7 @@ name = "endfield-ilp"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
+    { name = "graphviz" },
     { name = "pulp", extra = ["copt", "gurobi", "highs", "mosek"] },
     { name = "pyyaml" },
     { name = "scipy", version = "1.15.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
@@ -376,6 +377,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "graphviz", specifier = ">=0.21" },
     { name = "pulp", extras = ["copt", "gurobi", "highs", "mosek"], specifier = ">=3.3.0" },
     { name = "pyyaml", specifier = ">=6.0.3" },
     { name = "scipy", specifier = ">=1.15.3" },
