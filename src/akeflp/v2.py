@@ -241,8 +241,13 @@ def main() -> None:
                 )
 
                 item_nodes: set[str] = set()
-                c.node(cn_sell := f"{ri}sell", "sell", shape="square", color="green")
-                c.node(cn_fuel := f"{ri}fuel", "thermal_bank", shape="square")
+                c.node(cn_sell := f"{ri}sell", "sell", shape="Msquare", color="green")
+                c.node(
+                    cn_fuel := f"{ri}fuel",
+                    "thermal_bank",
+                    shape="Msquare",
+                    color="brown",
+                )
                 for k, v in region.power_plan.items():
                     if v:
                         vf = v * power_sources[k].consumption_rate
