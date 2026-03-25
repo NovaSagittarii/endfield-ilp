@@ -303,12 +303,12 @@ def main() -> None:
         for ri, region in enumerate(res.regions):
             for dest, flows in region.cross_transfer.items():
                 di = region_to_idx[dest]
-                for k, v in flows.items():
+                for k, vf in flows.items():
                     graph.edge(
                         f"{ri}+{k}",
                         f"{di}+{k}",
-                        taillabel=f"{v:.2f}",
-                        headlabel=f"{v:.2f}",
+                        taillabel=f"{vf:.2f}",
+                        headlabel=f"{vf:.2f}",
                         color="orange",
                         fontcolor="red",
                     )
