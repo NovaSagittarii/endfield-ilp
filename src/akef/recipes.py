@@ -268,6 +268,8 @@ for u, v in _powders.items():
     )
 
 # MARK: crucible
+_solutions: list[str] = []
+"""liquids prefixed with 'solution' (i.e. jincao_solution)"""
 for item in _liqplant:
     _recipes.append(
         RecipeData(
@@ -276,6 +278,7 @@ for item in _liqplant:
             outputs={f"{item}_solution": 1},
         )
     )
+    _solutions.append(f"{item}_solution")
 _recipes.append(
     RecipeData(
         facility="crucible",
@@ -315,5 +318,6 @@ _recipes.append(
         seconds=1,
     )
 )
+liquids: Final = ("clean_water", "liquid_xiranite", *treatable_liquids, *_solutions)
 
 recipes: Final = tuple(_recipes)

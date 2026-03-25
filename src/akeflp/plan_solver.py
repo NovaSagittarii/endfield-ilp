@@ -13,7 +13,7 @@ from akef.recipe_list import (
     power_sources,
     recipes,
 )
-from akef.recipes import treatable_liquids
+from akef.recipes import liquids, treatable_liquids
 from akeflp.plan import Plan, PlanConstraints, RegionPlan, RegionPlanConstraints
 
 
@@ -127,6 +127,32 @@ def solve(config: PlanConstraints) -> Plan:
         for liq in treatable_liquids:
             model += rvars.flow[liq] == 0  # no excess allowed (cannot discharge)
 
+    cross_transfer: dict[str, dict[str, dict[str, lp.LpVariable]]] = {
+        (s := region.region_name): {
+            t: {}
+            for other_region in config.regions
+            if s != (t := other_region.region_name)
+        }
+        for region in config.regions
+    }
+    all_transfer = 0
+    for sreg in config.regions:
+        s = sreg.region_name
+        for treg in config.regions:
+            t = treg.region_name
+            if s == t:
+                continue
+            for item in items:
+                if item in liquids:
+                    continue
+                cross_transfer[s][t][item] = lp.LpVariable(
+                    f"transfer_{s}_{t}_{item}", 0
+                )
+                regions[s].flow[item] -= cross_transfer[s][t][item]
+                regions[t].flow[item] += cross_transfer[s][t][item]
+                all_transfer += cross_transfer[s][t][item]
+    model += all_transfer <= config.max_cross_transfer_rate
+
     model += objective
     # print(model)
 
@@ -175,6 +201,17 @@ def solve(config: PlanConstraints) -> Plan:
                     if lp.value(x)
                 },
                 profit=cast(float, lp.value(regions[region.region_name].objective)),
+                cross_transfer={
+                    dest: {
+                        k: cast(float, lp.value(x))
+                        for k, x in transfer_plan.items()
+                        if cast(float, lp.value(x)) > 1e-6
+                    }
+                    for dest, transfer_plan in cross_transfer[
+                        region.region_name
+                    ].items()
+                    if region.region_name != dest
+                },
             )
             for region in config.regions
         ]

@@ -77,10 +77,10 @@ class Plan:
                 local_net[k] += v
             for k, v in r.sell_plan.items():
                 local_net[k] -= v
-            for dest, item_flow in r.cross_transfer.items():
-                for k, v in item_flow.items():
-                    local_net[k] -= v
-                    region_net[dest][k] += v
+            # for dest, item_flow in r.cross_transfer.items():
+            #     for k, v in item_flow.items():
+            #         local_net[k] -= v
+            #         region_net[dest][k] += v
             for recipe, rate, _ in r.recipe_plan:
                 for k, v in recipe.input_flow.items():
                     local_net[k] -= v * rate

@@ -3,6 +3,7 @@ Streamlit interface for Resource Plan Solver
 """
 
 import graphviz  # type: ignore
+import PIL
 import streamlit as st
 from streamlit.components.v1 import html
 
@@ -39,6 +40,9 @@ def region_editor(
         max_rate = round(depot_size // (60 * 24 * checkin_interval_days))
 
         ci1, ci2 = st.columns((1, 1))
+        regional_multiplier = st.number_input(
+            "Regional Multiplier", 0.0, None, 1.0, key=f"{region_name}_mult"
+        )
 
         with st.popover(
             "Objective function",
@@ -51,6 +55,7 @@ def region_editor(
                 k: st.number_input(
                     k, 0, 100, value=default_value.get(k, 0), key=f"{region_name}_{k}"
                 )
+                * regional_multiplier
                 for k in items
             }
 
@@ -213,6 +218,9 @@ def main() -> None:
         # graph.attr(splines="true")
         # graph.attr(sep="0.1")
         # graph.attr(pack="true")
+        region_to_idx = {
+            region.config.region_name: ri for ri, region in enumerate(res.regions)
+        }
         for ri, region in enumerate(res.regions):
             config = region.config
             with graph.subgraph(name=f"cluster_{ri}") as c:
@@ -283,10 +291,27 @@ def main() -> None:
                 for k in item_nodes:
                     c.node(k, k.split("+")[1].replace("_", " ").capitalize())
 
+        for ri, region in enumerate(res.regions):
+            st.write(region.config.region_name, region.cross_transfer)
+            for dest, flows in region.cross_transfer.items():
+                di = region_to_idx[dest]
+                for k, v in flows.items():
+                    graph.edge(
+                        f"{ri}+{k}",
+                        f"{di}+{k}",
+                        taillabel=f"{v:.2f}",
+                        headlabel=f"{v:.2f}",
+                        color="orange",
+                        fontcolor="red",
+                    )
+
         # st.graphviz_chart(graph, use_container_width=True)
         graph.attr(dpi="300")
         src = graphviz.Source(graph.source)
-        st.image(src.pipe(format="webp", quiet=True))
+        try:
+            st.image(src.pipe(format="webp", quiet=True))
+        except PIL.UnidentifiedImageError:
+            st.error("Cannot render as webp")
 
         import re
 
