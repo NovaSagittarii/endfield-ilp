@@ -204,13 +204,14 @@ def main() -> None:
                     + f"**{recipe.facility.name}** "
                     + f"{recipe.inputs} -> {recipe.outputs}"
                 )
-        with c.expander("Sell Plan", expanded=True):
-            for k, vf in sorted(
-                list(region.sell_plan.items()),
-                key=lambda k: (-config.value[k[0]], k),
-            ):
-                w = config.value[k]
-                st.write(f"{vf:.2f}/min {k} :gray[({w})] :green[{w * vf:.1f}]/min")
+        if len(region.sell_plan):
+            with c.expander("Sell Plan", expanded=True):
+                for k, vf in sorted(
+                    list(region.sell_plan.items()),
+                    key=lambda k: (-config.value[k[0]], k),
+                ):
+                    w = config.value[k]
+                    st.write(f"{vf:.2f}/min {k} :gray[({w})] :green[{w * vf:.1f}]/min")
         if sum(len(x) for x in region.cross_transfer.values()):
             with c.expander("Transfer Plan"):
                 for dest, plan in region.cross_transfer.items():
