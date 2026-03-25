@@ -211,6 +211,12 @@ def main() -> None:
             ):
                 w = config.value[k]
                 st.write(f"{vf:.2f}/min {k} :gray[({w})] :green[{w * vf:.1f}]/min")
+        if sum(len(x) for x in region.cross_transfer.values()):
+            with c.expander("Transfer Plan"):
+                for dest, plan in region.cross_transfer.items():
+                    with st.expander(f"To {dest}", expanded=True):
+                        for k, vf in plan.items():
+                            st.write(f"{vf:.2f}/min {k}")
 
     with st.spinner("Rendering graph...", show_time=True):
         graph = graphviz.Digraph(engine="patchwork")
@@ -292,7 +298,6 @@ def main() -> None:
                     c.node(k, k.split("+")[1].replace("_", " ").capitalize())
 
         for ri, region in enumerate(res.regions):
-            st.write(region.config.region_name, region.cross_transfer)
             for dest, flows in region.cross_transfer.items():
                 di = region_to_idx[dest]
                 for k, v in flows.items():
