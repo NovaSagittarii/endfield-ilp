@@ -21,30 +21,32 @@ function renderRecipe(
     used + 1e-6 < allocated
       ? `${used.toFixed(2)}/${allocated}\n${recipe.facility.name}`
       : `${allocated}\n${recipe.facility.name}`;
+  const { perMinute } = recipe;
   const { power: _, ...fixedCost } = recipe.fixedDelta;
   const lines = Object.entries(recipe.delta)
     .map(([item, rate]) => {
       if (rate < 0) {
         // input (cost)
-        return `${item} -> r${id} [label=${(used * -rate).toFixed(2)},headlabel=${-rate},labelcolor=gray,labelfontsize=8,labeldistance=1.5]`;
+        return `${item} -> r${id} [label=${(used * -rate).toFixed(2)},headlabel=${-rate / perMinute},labelcolor=gray,labelfontsize=8,labeldistance=1.5]`;
       } else {
         // output
-        return `r${id} -> ${item} [label=${(used * rate).toFixed(2)},taillabel=${rate},labelcolor=gray,labelfontsize=8,labeldistance=1.5]`;
+        return `r${id} -> ${item} [label=${(used * rate).toFixed(2)},taillabel=${rate / perMinute},labelcolor=gray,labelfontsize=8,labeldistance=1.5]`;
       }
     })
     .concat(
       Object.entries(fixedCost).map(([item, rate]) => {
         if (rate < 0) {
           // input (cost)
-          return `${item} -> r${id} [color=red, label="${allocated * -rate}",headlabel=${-rate},labelcolor=gray,labelfontsize=8,labeldistance=1.5]`;
+          return `${item} -> r${id} [color=red, label="${allocated * -rate}",headlabel=${-rate / perMinute},labelcolor=gray,labelfontsize=8,labeldistance=1.5]`;
         } else {
           // output
-          return `r${id} -> ${item} [color=red, label="${allocated * rate}",taillabel=${rate},labelcolor=gray,labelfontsize=8,labeldistance=1.5]`;
+          return `r${id} -> ${item} [color=red, label="${allocated * rate}",taillabel=${rate / perMinute},labelcolor=gray,labelfontsize=8,labeldistance=1.5]`;
         }
       }),
     );
+  const xlabel = `xlabel=<<FONT COLOR='gray' POINT-SIZE='10'> ${recipe.seconds}s</FONT>>`;
   return (
-    `r${id} [label="${label}", shape=diamond, color=red, margin=0, fontsize=10]\n` +
+    `r${id} [label="${label}", shape=diamond, color=red, margin=0, fontsize=10, ${xlabel}]\n` +
     lines.join("\n")
   );
 }

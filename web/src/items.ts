@@ -64,6 +64,8 @@ export interface Recipe {
   feature: string;
   facility: Facility;
   limit?: number[];
+  seconds: number;
+  perMinute: number;
 }
 
 const data = parseYaml(itemsYaml) as Items.Yaml;
@@ -102,6 +104,8 @@ export const facilities = data.facilities.map((f) => {
         Object.entries(recipe).map(([k, v]) => [k, calculateFlow(v, seconds)]),
       ),
       feature,
+      seconds,
+      perMinute: 60 / seconds,
     } as Recipe;
   });
   return {
