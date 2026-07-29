@@ -286,6 +286,7 @@ facilities:
         stabilized_carbon: -2
         water: -1
       - heavy_xiranite: 1
+        seconds: 10
         xiranite: -10
         xircon_effluent: -5
       - fixed:
