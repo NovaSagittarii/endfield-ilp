@@ -50,14 +50,15 @@ namespace Items {
   }
 }
 
-interface Facility {
+export interface Facility {
   name: string;
+  lname: string;
   recipes: Recipe[];
   powerUsage: number;
   limit?: number[];
 }
 
-interface Recipe {
+export interface Recipe {
   fixedDelta: Record<string, number>; // fixed costs
   delta: Record<string, number>; // variable costs
   feature: string;
@@ -87,6 +88,7 @@ export const facilities = data.facilities.map((f) => {
     } = r;
     const { power = -(f.power ?? 0), ...fixedDelta } = fixed;
     return {
+      limit,
       fixedDelta: {
         ...({ power } as Record<string, number>),
         ...Object.fromEntries(
@@ -104,6 +106,7 @@ export const facilities = data.facilities.map((f) => {
   });
   return {
     name: f.name,
+    lname: f.name.replace(/\s/g, "_").toLowerCase(),
     recipes,
     powerUsage: f.power ?? -f.fixed?.power!,
     limit: f.limit ?? [],
@@ -118,3 +121,4 @@ export const recipes = facilities.flatMap((f) =>
 );
 
 export const featureFlags = new Set(recipes.map((r) => r.feature));
+export const _data = data;

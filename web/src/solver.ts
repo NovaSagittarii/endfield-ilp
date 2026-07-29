@@ -6,8 +6,78 @@
 import highsWasm from "../node_modules/highs/build/highs.wasm?url";
 import loadHighs from "highs";
 
+import { type Facility, type Recipe } from "./items";
+
 const highs = await loadHighs({
   locateFile: (_: string) => highsWasm,
 });
+
+export function solve(
+  F: Facility[],
+  R: Recipe[],
+  sell: Record<string, number>,
+  itemLimit: Record<string, number>,
+) {
+  const items = [
+    ...new Set(
+      R.flatMap((r) => Object.keys(r.delta).concat(Object.keys(r.fixedDelta))),
+    ),
+  ];
+  const sItems = Object.keys(sell);
+
+  const itemFlow = Object.fromEntries(items.map((x) => [x, [] as string[]]));
+  R.forEach((r, i) => {
+    Object.entries(r.delta).forEach(([k, v]) =>
+      itemFlow[k].push(`${v} use${i}`),
+    );
+    Object.entries(r.fixedDelta).forEach(([k, v]) =>
+      itemFlow[k].push(`${v} alloc${i}`),
+    );
+  });
+  sItems.forEach((item) =>
+    itemFlow[item].push(`-1 sell${items.indexOf(item)}`),
+  );
+
+  const lpModel = `Maximize
+ obj: ${Object.entries(sell)
+   .map(([k, v]) => `${v} sell${items.indexOf(k)}`)
+   .join(" + ")}
+Subject To
+${F.filter((f) => f.limit?.length)
+  .map(
+    (f) =>
+      f.limit &&
+      f.limit.length &&
+      ` ${f.lname}_limit: ${f.recipes.map((r) => `alloc${R.indexOf(r)}`).join(" + ")} <= ${f.limit[f.limit.length - 1]}`,
+  )
+  .join("\n")}
+${R.map(
+  (r, i) =>
+    r.limit && r.limit.length && `alloc${i} <= ${r.limit[r.limit.length - 1]}`,
+)
+  .filter((x) => x)
+  .join("\n")}
+${Object.entries(itemLimit)
+  .map(
+    // somehow all resource pumps/miners output at 20/m
+    ([item, x]) =>
+      ` ${item}_limit: ${itemFlow[item].filter((x) => x.startsWith("20")).join(" + ")} <= ${x}`,
+  )
+  .join("\n")}
+${Object.entries(itemFlow)
+  .map(
+    ([item, x]) =>
+      ` ${item}: ${x.join(" + ")} ${/power|_env$/.test(item) ? ">=" : "="} 0`,
+  )
+  .join("\n")}
+${R.map((_, i) => ` use${i} - alloc${i} <= 0`).join("\n")}
+General
+${R.map((_, i) => ` alloc${i}`).join("\n")}
+End`;
+  console.log(lpModel);
+  const result = highs.solve(lpModel);
+  console.log(result);
+  return result.ObjectiveValue;
+}
 
 export default highs;
