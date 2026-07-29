@@ -91,7 +91,10 @@ General
 ${R.map((_, i) => ` alloc${i}`).join("\n")}
 End`;
   console.log(lpModel);
-  const result = highs.solve(lpModel);
+  const result = highs.solve(lpModel, {
+    mip_feasibility_tolerance: 1e-9,
+    mip_rel_gap: 1e-7,
+  });
   console.log(result);
   const cols = result.Columns as Record<string, HighsLinearSolutionColumn>;
   const [power, recipes] = partition(
