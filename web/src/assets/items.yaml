@@ -316,12 +316,12 @@ facilities:
         heavy_xiragen: 1
         xiragen: -2
         separator_core: -1
-      - hetonite_gas: 1
+      - hetonite_gas: 2
         cuprium_gas: -2
         separator_core: -2
       - fixed:
           stable_env: -1/m
-        hetonite_gas: 1
+        hetonite_gas: 2
         cuprium_gas: -2
         separator_core: -1
   - name: Separating Unit
