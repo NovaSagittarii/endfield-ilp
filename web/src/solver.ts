@@ -4,20 +4,36 @@
  */
 
 import highsWasm from "../node_modules/highs/build/highs.wasm?url";
-import loadHighs from "highs";
+import loadHighs, { type HighsLinearSolutionColumn } from "highs";
 
 import { type Facility, type Recipe } from "./items";
+import { partition } from "./util";
 
 const highs = await loadHighs({
   locateFile: (_: string) => highsWasm,
 });
+
+export interface RecipePlan {
+  recipe: Recipe;
+  used: number;
+  allocated: number;
+}
+
+export interface RegionPlan {
+  sell: Record<string, number>;
+  power: RecipePlan[];
+  powerGenerated: number;
+  profit: number;
+  recipes: RecipePlan[];
+}
 
 export function solve(
   F: Facility[],
   R: Recipe[],
   sell: Record<string, number>,
   itemLimit: Record<string, number>,
-) {
+): RegionPlan {
+  console.log(F);
   const items = [
     ...new Set(
       R.flatMap((r) => Object.keys(r.delta).concat(Object.keys(r.fixedDelta))),
@@ -77,7 +93,29 @@ End`;
   console.log(lpModel);
   const result = highs.solve(lpModel);
   console.log(result);
-  return result.ObjectiveValue;
+  const cols = result.Columns as Record<string, HighsLinearSolutionColumn>;
+  const [power, recipes] = partition(
+    R.map((r, i) => ({
+      recipe: r,
+      used: cols[`use${i}`].Primal,
+      allocated: cols[`alloc${i}`].Primal,
+    })).filter(({ allocated }) => allocated >= 1e-8),
+    (x) => x.recipe.fixedDelta["power"] > 0,
+  );
+  return {
+    sell: Object.fromEntries(
+      sItems
+        .map((item) => [item, cols[`sell${items.indexOf(item)}`].Primal])
+        .filter(([_k, v]) => v),
+    ),
+    profit: result.ObjectiveValue,
+    power,
+    recipes,
+    powerGenerated: power.reduce(
+      (acc, { recipe, allocated }) => acc + recipe.fixedDelta.power * allocated,
+      0,
+    ),
+  };
 }
 
 export default highs;

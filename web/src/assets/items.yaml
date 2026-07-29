@@ -5,6 +5,13 @@ raw_resources:
   - cuprium_ore
 # MARK:
 facilities:
+  - name: Purification Node
+    power: 0
+    seconds: 10
+    limit: [1]
+    recipes:
+      - sewage: -10
+        xircon_effluent: 1
   # MARK: Resourcing
   - name: Electric Mining Rig
     power: 5
@@ -383,16 +390,16 @@ facilities:
     recipes:
       - fixed:
           inergen: -6/m
-          stable_env: 4/m
+        stable_env: 4/m
       - fixed:
           aquagen: -6/m
-          humid_env: 4/m
+        humid_env: 4/m
       - fixed:
           acridgen: -6/m
-          acrid_env: 4/m
+        acrid_env: 4/m
       - fixed:
           xiragen: -6/m
-          xiranite_env: 4/m
+        xiranite_env: 4/m
   - name: Gas Reactor Globe
     power: 50
     seconds: 2
