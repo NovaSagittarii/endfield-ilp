@@ -52,7 +52,7 @@ function renderRecipe(
 }
 
 function renderSellPlan([item, rate]: [string, number]): string {
-  return `${item} -> sell [label="${rate}"]`;
+  return `${item} -> sell [label="${rate.toFixed(2)}"]`;
 }
 
 function renderItem(item: string): string {
