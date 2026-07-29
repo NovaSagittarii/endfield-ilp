@@ -8,10 +8,10 @@ raw_resources:
 facilities:
   - name: Purification Node
     power: 0
-    seconds: 10
-    limit: [1]
+    seconds: 15
+    limit: [1, 2, 3]
     recipes:
-      - sewage: -10
+      - sewage: -30
         xircon_effluent: 1
   # MARK: Resourcing
   - name: Electric Mining Rig

@@ -105,6 +105,9 @@ End`;
     })).filter(({ allocated }) => allocated >= 1e-8),
     (x) => x.recipe.fixedDelta["power"] > 0,
   );
+  const tots = Object.fromEntries(F.map((x) => [x.name, 0]));
+  recipes.map((r) => (tots[r.recipe.facility.name] += r.allocated));
+  console.log(tots);
   return {
     sell: Object.fromEntries(
       sItems
