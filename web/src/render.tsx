@@ -37,16 +37,16 @@ function renderRecipe(
       Object.entries(fixedCost).map(([item, rate]) => {
         if (rate < 0) {
           // input (cost)
-          return `${item} -> r${id} [color=red, label="${allocated * -rate}",headlabel=${-rate / perMinute},labelcolor=gray,labelfontsize=8,labeldistance=1.5]`;
+          return `${item} -> r${id} [color=red, label="${allocated * -rate}",headlabel=${-rate},labelcolor=gray,labelfontsize=8,labeldistance=1.5]`;
         } else {
           // output
-          return `r${id} -> ${item} [color=red, label="${allocated * rate}",taillabel=${rate / perMinute},labelcolor=gray,labelfontsize=8,labeldistance=1.5]`;
+          return `r${id} -> ${item} [color=red, label="${allocated * rate}",taillabel=${rate},labelcolor=gray,labelfontsize=8,labeldistance=1.5]`;
         }
       }),
     );
   const xlabel = `xlabel=<<FONT COLOR='gray' POINT-SIZE='10'> ${recipe.seconds}s</FONT>>`;
   return (
-    `r${id} [label="${label}", shape=diamond, color=red, margin=0, fontsize=10, ${xlabel}]\n` +
+    `r${id} [label="${label}", shape=note, color=red, margin=0, fontsize=10, ${xlabel}]\n` +
     lines.join("\n")
   );
 }
