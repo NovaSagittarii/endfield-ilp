@@ -435,6 +435,23 @@ facilities:
       - fixed:
           sc_wuling_battery: -1
           power: 3200
+  - name: Thermal Bank (Partial)
+    power: 0
+    seconds: 60
+    feature: partial_bank
+    recipes:  # goofy hack cuz i didnt parse delta properly
+      - originium_ore: -7.5
+        power: 50
+      - lc_valley_battery: -1.5
+        power: 220
+      - sc_valley_battery: -1.5
+        power: 420
+      - hc_valley_battery: -1.5
+        power: 1100
+      - lc_wuling_battery: -1.5
+        power: 1600
+      - sc_wuling_battery: -1.5
+        power: 3200
 # MARK:
 items: {}
 # MARK:
