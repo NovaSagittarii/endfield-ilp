@@ -1,0 +1,455 @@
+raw_resources:
+  - originium_ore
+  - amethyst_ore
+  - ferrium_ore
+  - cuprium_ore
+# MARK:
+facilities:
+  # MARK: Resourcing
+  - name: Electric Mining Rig
+    power: 5
+    seconds: 3
+    recipes:
+      - originium_ore: 1
+      - amethyst_ore: 1
+  - name: Electric Mining Rig Mk II
+    power: 10
+    seconds: 3
+    recipes:
+      - ferrium_ore: 1
+  - name: Hydro Mining Rig
+    power: 0
+    seconds: 3
+    recipes:
+      - water: -1
+        originium_ore: 1
+        feature: hydro_replaces.electric_mk1
+      - water: -1
+        amethyst_ore: 1
+        feature: hydro_replaces.electric_mk1
+      - water: -1
+        ferrium_ore: 1
+        feature: hydro_replaces.electric_mk2
+      - water: -1
+        cuprium_ore: 1
+  - name: Fluid Pump
+    power: 10
+    seconds: 1
+    recipes:
+      - water: 1
+  - name: Acid Resistant Pump Mk II
+    power: 20
+    seconds: 1
+    recipes:
+      - precipitation_acid: 1
+  - name: Gas Extractor
+    power: 0
+    seconds: 3
+    recipes:
+      - inergen: 1
+      - xiragen: 1
+        limit: [2, 4, 5]
+  # MARK: Production I
+  - name: Refining Unit
+    power: 5
+    seconds: 2
+    recipes:
+      - ferrium_ore: -1
+        ferrium: 1
+      - amethyst_ore: -1
+        amethyst: 1
+      - originium_ore: -1
+        origocrust: 1
+      - dense_origocrust_powder: -1
+        packed_origocrust: 1
+      - dense_ferrium_powder: -1
+        steel: 1
+      - cryston_powder: -1
+        cryston_fiber: 1
+      - dense_carbon_powder: -1
+        stabilized_carbon: 1
+      - dense_originium_powder: -1
+        dense_origocrust_powder: 1
+      - jincao: -1
+        carbon: 2
+      - cuprium_ore: -1
+        water: -1
+        cuprium: 1
+        sewage: 1
+  - name: Shredding Unit
+    power: 5
+    seconds: 2
+    recipes:
+      - cuprium: -1
+        cuprium_powder: 1
+      - ferrium: -1
+        ferrium_powder: 1
+      - amethyst_fiber: -1
+        amethyst_powder: 1
+      - originium_ore: -1
+        originium_powder: 1
+      - carbon: -1
+        carbon_powder: 1
+      - origocrust: -1
+        origocrust_powder: 1
+      - buckflower: -1
+        buckflower_powder: 1
+      - sandleaf: -1
+        sandleaf_powder: 3
+      - jincao: -1
+        jincao_powder: 2
+  - name: Fitting Unit
+    power: 20
+    seconds: 2
+    recipes:
+      - ferrium: -1
+        ferrium_part: 1
+      - amethyst_fiber: -1
+        amethyst_part: 1
+      - steel: -1
+        steel_part: 1
+      - cryston_fiber: -1
+        cryston_part: 1
+      - cuprium: -1
+        cuprium_part: 1
+      - hetonite: -5
+        hetonite_part: 1
+      - pyrrolite: -5
+        pyrrolite_part: 1
+  - name: Moulding Unit
+    power: 10
+    seconds: 2
+    recipes:
+      - ferrium: -2
+        ferrium_bottle: 1
+      - amethyst_fiber: -2
+        amethyst_bottle: 1
+      - steel: -2
+        steel_bottle: 1
+      - cryston_fiber: -2
+        cryston_bottle: 1
+      - cuprium: -2
+        cuprium_bottle: 1
+      - hetonite: -2
+        hetonite_bottle: 1
+      - cuprium: -2
+        inergen: -1
+        cuprium_canister: 1
+  - name: Planting Unit
+    power: 20
+    seconds: 2
+    recipes:
+      - buckflower_seed: -1
+        buckflower: 1
+      - sandleaf_seed: -1
+        sandleaf: 1
+      - jincao_seed: -1
+        water: -1
+        jincao: 2
+  - name: Seed Picking Unit
+    power: 10
+    seconds: 2
+    recipes:
+      - buckflower: -1
+        buckflower_seed: 2
+      - sandleaf: -1
+        sandleaf_seed: 2
+      - jincao: -1
+        jincao_seed: 2
+  - name: Water Treatment Unit
+    power: 50
+    seconds: 2
+    recipes:
+      - sewage: -1
+      - xircon_effluent: -1
+      - inert_xircon_effluent: -1
+  # MARK: Production II
+  - name: Gearing Unit
+    power: 10
+    seconds: 10
+  - name: Filling Unit
+    power: 20
+    seconds: 10
+    recipes:
+      - buck_capsule_c: 1
+        amethyst_bottle: -5
+        buckflower_powder: -5
+      - buck_capsule_b: 1
+        ferrium_bottle: -10
+        buckflower_powder: -10
+      - buck_capsule_a: 1
+        steel_bottle: -10
+        ground_buckflower_powder: -10
+  - name: Filling Unit (Gas & Fluid Mode)
+    power: 20
+    seconds: 2
+    recipes:
+      - ferrium_bottle_jincao: 1
+        ferrium_bottle: -1
+        jincao_solution: -1
+      - cuprium_bottle_jincao: 1
+        cuprium_bottle: -1
+        jincao_solution: -1
+  - name: Packaging Unit
+    power: 20
+    seconds: 10
+    recipes:
+      - lc_valley_battery: 1
+        amethyst_part: -5
+        originium_powder: -10
+      - sc_valley_battery: 1
+        ferrium_part: -10
+        originium_powder: -15
+      - hc_valley_battery: 1
+        steel_part: -10
+        dense_originium_powder: -15
+      - jincao_drink: 1
+        ferrium_part: -10
+        ferrium_bottle_jincao: -5
+      - jincao_tea: 1
+        cuprium_part: -10
+        cuprium_bottle_jincao: -5
+      - lc_wuling_battery: 1
+        xiranite: -5
+        dense_originium_powder: -15
+      - sc_wuling_battery: 1
+        xircon: -5
+        dense_originium_powder: -20
+      - separator_core: 2
+        seconds: 2
+        cuprium_canister: -1
+        xiranite: -1
+  - name: Grinding Unit
+    power: 50
+    seconds: 2
+    recipes:
+      - dense_ferrium_powder: 1
+        ferrium_powder: -2
+        sandleaf_powder: -1
+      - cryston_powder: 1
+        amethyst_powder: -2
+        sandleaf_powder: -1
+      - dense_originium_powder: 1
+        originium_powder: -2
+        sandleaf_powder: -1
+      - dense_carbon_powder: 1
+        carbon_powder: -2
+        sandleaf_powder: -1
+      - dense_origocrust_powder: 1
+        origocrust_powder: -2
+        sandleaf_powder: -1
+      - ground_buckflower_powder: 1
+        buckflower_powder: -2
+        sandleaf_powder: -1
+  - name: Reactor Crucible
+    power: 50
+    seconds: 2
+    recipes:
+      - jincao_solution: 1
+        jincao_powder: -1
+        water: -1
+      - liquid_xiranite: 1
+        xiranite: -1
+        water: -1
+      - liquid_heavy_xiranite: 1
+        heavy_xiranite: -1
+        precipitation_acid: -1
+      - cuprium_solution: 1
+        cuprium_powder: -1
+        precipitation_acid: -1
+      - xircon_effluent: 1
+        inert_xircon_effluent: 1
+        liquid_xiranite: -1
+        sewage: -1
+      - xircon: 1
+        sewage: 1
+        xircon_effluent: -2
+        ferrium_powder: -1
+      - hetonite: 1
+        sewage: 1
+        hetonite_solution: -2
+        ferrium_powder: -1
+  - name: Forge of the Sky
+    limit: [1, 2, 4, 8, 12]
+    power: 50
+    seconds: 2
+    recipes:
+      - xiranite: 1
+        stabilized_carbon: -2
+        water: -1
+      - heavy_xiranite: 1
+        xiranite: -10
+        xircon_effluent: -5
+      - fixed:
+          stable_env: -1/m
+        xiranite: 1
+        carbon: -1
+        water: -1
+  - name: Purification Unit
+    power: 50
+    seconds: 2
+    recipes:
+      - inert_xircon_effluent: -4
+        xircon_effluent: 1
+        water: 1
+      - cuprium_solution: -4
+        hetonite_solution: 1
+        precipitation_acid: 1
+  - name: Purification Unit (Gas Mode)
+    power: 50
+    seconds: 2
+    recipes:
+      - heavy_xiragen: 1
+        xiragen: -2
+        separator_core: -2
+      - fixed:
+          stable_env: -1/m
+        heavy_xiragen: 1
+        xiragen: -2
+        separator_core: -1
+      - hetonite_gas: 1
+        cuprium_gas: -2
+        separator_core: -2
+      - fixed:
+          stable_env: -1/m
+        hetonite_gas: 1
+        cuprium_gas: -2
+        separator_core: -1
+  - name: Separating Unit
+    power: 20
+    seconds: 2
+  - name: Fluid-Gas Transmuting Unit
+    fixed:
+      power: -50
+      liquid_xiranite: -6/m
+    seconds: 2
+    recipes:
+      - aquagen: 1
+        water: -1
+      - acridgen: 1
+        precipitation_acid: -1
+      - xiragen: 1
+        liquid_xiranite: -1
+      - heavy_xiragen: 5
+        seconds: 10
+        liquid_heavy_xiranite: -2
+      - cuprium_gas: 1
+        cuprium_solution: -2
+      - hetonite_gas: 1
+        hetonite_solution: -1
+      - water: 1
+        aquagen: -1
+      - precipitation_acid: 1
+        acridgen: -1
+      - liquid_xiranite: 1
+        xiragen: -1
+      - liquid_heavy_xiranite: 2
+        seconds: 10
+        heavy_xiragen: -5
+      - cuprium_solution: 2
+        cuprium_gas: -1
+      - hetonite_solution: 1
+        hetonite_gas: -1
+  - name: Solid-Gas Transmuting Unit
+    fixed:
+      power: -50
+      xiragen: -6/m
+    seconds: 2
+    recipes:
+      - xiragen: 1
+        xiranite: -1
+      - heavy_xiragen: 5
+        seconds: 10
+        heavy_xiranite: -2
+      - cuprium_gas: 1
+        cuprium: -2
+      - hetonite_gas: 2
+        hetonite: -1
+      - pyrrolite_gas: 1
+        pyrrolite: -1
+      - xiranite: 1
+        xiragen: -1
+      - heavy_xiranite: 2
+        seconds: 10
+        heavy_xiragen: -5
+      - cuprium: 2
+        cuprium_gas: -1
+      - hetonite: 1
+        hetonite_gas: -2
+      - pyrrolite: 1
+        pyrrolite_gas: -1
+  - name: Gas Dispersing Unit
+    power: 0
+    recipes:
+      - fixed:
+          inergen: -6/m
+          stable_env: 4/m
+      - fixed:
+          aquagen: -6/m
+          humid_env: 4/m
+      - fixed:
+          acridgen: -6/m
+          acrid_env: 4/m
+      - fixed:
+          xiragen: -6/m
+          xiranite_env: 4/m
+  - name: Gas Reactor Globe
+    power: 50
+    seconds: 2
+    recipes:
+      - fixed:
+          acrid_env: -1/m
+        pyrrolite_gas: 1
+        hetonite_gas: -2
+        xiragen: -1
+  # MARK: Power
+  - name: Thermal Bank
+    power: 0
+    seconds: 40
+    recipes:
+      - seconds: 8
+        fixed:
+          originium_ore: -1
+          power: 50
+      - fixed:
+          lc_valley_battery: -1
+          power: 220
+      - fixed:
+          sc_valley_battery: -1
+          power: 420
+      - fixed:
+          hc_valley_battery: -1
+          power: 1100
+      - fixed:
+          lc_wuling_battery: -1
+          power: 1600
+      - fixed:
+          sc_wuling_battery: -1
+          power: 3200
+# MARK:
+items: {}
+# MARK:
+sell:
+  valley_iv:
+    buck_capsule_a: 70
+    hc_valley_battery: 70
+    sc_valley_battery: 30
+    buck_capsule_b: 27
+    buck_capsule_c: 10
+    amethyst_bottle: 2
+    origocrust: 1
+    amethyst_part: 1
+    lc_valley_battery: 16
+    ferrium_part: 1
+    steel_part: 3
+  wuling:
+    sc_wuling_battery: 54
+    lc_wuling_battery: 25
+    pyrrolite_part: 70
+    hetonite_part: 48
+    heavy_xiranite: 27
+    xiranite: 1
+    jincao_drink: 16
+    jincao_tea: 22
+    cuprium_part: 1
+    separator_core: 1
