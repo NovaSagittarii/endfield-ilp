@@ -26,4 +26,3 @@ Prints runtime statistics (wall and cputime) and sets as lower priority when run
 ```sh
 time nice -n 5 uv run src/akeflp/layout_solver.py
 ```
-
